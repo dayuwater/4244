@@ -81,4 +81,16 @@ namespace TornRepair2
         public double confident;
         public double overlap;
     }
+
+    public struct MatchMetricData
+    {
+        public ColorfulContourMap map1;
+        public ColorfulContourMap map2;
+        public double confident;
+        public double overlap;
+        public List<Phi> dna1;
+        public List<Phi> dna2;
+        public Match match;
+    }
+
 }

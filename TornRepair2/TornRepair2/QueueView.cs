@@ -2,6 +2,7 @@
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -200,11 +201,18 @@ namespace TornRepair2
             double maxConfidence = 0.0;
             ColorfulContourMap map1 = new ColorfulContourMap();
             ColorfulContourMap map2 = new ColorfulContourMap();
-            // algorithm:
-            // search for all unmatched pairs, calculate the confidence level 
+            double overlap = 0.0;
+            bool matched = false;
+            // Double-thresholding algorithm (Worked for 5-piece precisely torned paper):
+            // search for all unmatched pairs, calculate the confidence level ( fixed the problem with different results caused by different ordering )
+            // reject all matches that has confidence less than 80 ( eliminate some of the false positives)
             // calculate the intersection for each matching pair
-            // if the intersection > 5000, reject
-            // the pair with highest confidence with a valid intersection is the best
+            // the pair with the lowest intersection is the best
+            // if the intersection of the lowest pair is still greater than 5000, there are no match for the given fragments
+
+            List<MatchMetricData> matchMetricData = new List<MatchMetricData>();
+
+            // search for all unmatched pairs, calculate the confidence level 
             foreach (ColorfulContourMap cmap in Form1.contourMaps)
             {
                 if (cmap.matched == false)
@@ -213,7 +221,9 @@ namespace TornRepair2
                     {
                         if (cmap2.matched == false&&cmap!=cmap2)
                         {
-                            double confidence = DNAUtil.partialMatch(cmap.extractDNA(), cmap2.extractDNA()).confidence;
+                            Match match = DNAUtil.partialMatch(cmap.extractDNA(), cmap2.extractDNA());
+                            double confidence = match.confidence;
+                            matchMetricData.Add(new MatchMetricData { map1 = cmap, map2 = cmap2, confident = confidence,dna1=cmap.extractDNA(),dna2=cmap2.extractDNA(),match=match});
                             if (confidence > maxConfidence)
                             {
                                 maxConfidence = confidence;
@@ -224,9 +234,50 @@ namespace TornRepair2
                     }
                 }
             }
+            matchMetricData=matchMetricData.Where(o=>o.confident>80).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
             Console.WriteLine(map2.imageIndex);
+
+            // calculate the intersection for each matching pair
+            List<MatchMetricData> data2 = new List<MatchMetricData>();
+            foreach (MatchMetricData m in matchMetricData)
+            {
+                Image<Bgr, byte> pic1 = Form1.sourceImages[m.map1.imageIndex].Clone();
+                Image<Bgr, byte> pic2 = Form1.sourceImages[m.map2.imageIndex].Clone();
+                Point centroid1=new Point();
+                Point centroid2=new Point();
+                double angle = 0.0;
+                Match edgeMatch = m.match;
+                Transformation.transformation(m.dna1, m.dna2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                angle = angle * 180 / Math.PI;
+                angle = -angle;
+                Console.WriteLine(centroid1.ToString());
+                Console.WriteLine(centroid2.ToString());
+                Console.WriteLine(angle);
+                Image<Bgr,byte> mask1 = pic1.Clone();
+                Image<Bgr,byte> mask2 = pic2.Clone();
+                Image<Bgr, byte> joined=pic1.Clone();
+                Image<Bgr, byte> joined_mask=joined.Clone();
+                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180);
+                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap });
+                
+
+            }
+            MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
+            // the pair with highest confidence with a valid intersection is the best
+            if (MinOverlap.overlap<Constants.THRESHOLD)
+            {
+                Console.WriteLine("Map1 " + MinOverlap.map1.imageIndex);
+                Console.WriteLine("Map2 " + MinOverlap.map2.imageIndex);
+                Console.WriteLine("Overlap " + MinOverlap.overlap);
+            }
+            else
+            {
+                Console.WriteLine("Failed");
+            }
+
+
 
         }
     }
