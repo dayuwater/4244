@@ -1,0 +1,469 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace TornRepair2
+{
+    public static class DNAUtil
+    {
+        public static List<Phi> replicateDNA(List<Phi> input)
+        {
+            List<Phi> linear = input.ToList();
+            for (int i = 0; i < input.Count; ++i)
+            {
+                Phi temp;
+                temp = input[i];
+                temp.theta += 360; // might use this to get rid of negative numbers
+                // also keeps the previous number if that is not negative
+                linear.Add(temp);
+
+            }
+            return linear;
+        }
+
+
+
+
+
+
+
+
+
+        // Partial Match Algorithm
+        public static Match partialMatch(List<Phi> DNAseq1, List<Phi> DNAseq2)
+        {
+            bool flag = true; // ToDo: Compare the control points in contours between two parts
+            Match segment; // create an empty match segment
+            segment.t11 = 0;
+            segment.t12 = 0;
+            segment.t21 = 0;
+            segment.t22 = 0;
+
+            List<Phi> seq1, seq2; // two empty List of edge maps
+            int best = 0, max_match;
+            int offset = 0, length = 0;
+            if (DNAseq1.Count > DNAseq2.Count) // if the contour in first part has more control points than the second part
+            {
+                seq1 = replicateDNA(DNAseq1);//replicate the larger DNA
+
+                seq2 = DNAseq2.ToList();//reverse the smaller one
+                seq2.Reverse();
+            }
+            else
+            {
+                flag = false;
+                seq1 = replicateDNA(DNAseq2); // if the first one has less control point, attach all the control points of the second part
+                seq2 = DNAseq1.ToList();//reverse the smaller one
+                seq2.Reverse();
+            }
+
+            for (int shift = 0; shift < seq1.Count - seq2.Count; shift += Constants.STEP)
+            {
+                List<int> diff = new List<int>();
+
+                int start = 0, end = 0;
+                for (int i = 0; i < seq2.Count; ++i)
+                {
+                    int difference = (int)(seq1[i + shift].theta - seq2[i].theta);
+                    diff.Add(difference);
+                }
+                max_match = histogram(diff, seq2, ref start, ref end, Constants.DELTA_THETA);
+                if (best < max_match)
+                {
+                    offset = shift;
+                    best = max_match;
+                    int t_start = start + shift;
+                    int t_end = end + shift;
+                    if (start + shift >= seq1.Count / 2)
+                        t_start = start + shift - seq1.Count / 2;
+                    if (end + shift >= seq1.Count / 2)
+                        t_end = end + shift - seq1.Count / 2;
+                    length = t_start - t_end;
+
+                    if (flag)
+                    {
+                        segment.t21 = seq2.Count - end - 1;
+                        segment.t22 = seq2.Count - start - 1;
+                        segment.t11 = t_start;
+                        segment.t12 = t_end;
+                    }
+                    else
+                    {
+                        segment.t11 = seq2.Count - end - 1;
+                        segment.t12 = seq2.Count - start - 1;
+                        segment.t21 = t_start;
+                        segment.t22 = t_end;
+                    }
+                }
+            }
+
+            segment.x11 = (int)DNAseq1[segment.t11].x;
+            segment.y11 = (int)DNAseq1[segment.t11].y;
+            segment.x12 = (int)DNAseq1[segment.t12].x;
+            segment.y12 = (int)DNAseq1[segment.t12].y;
+
+            segment.x21 = (int)DNAseq2[segment.t21].x;
+            segment.y21 = (int)DNAseq2[segment.t21].y;
+            segment.x22 = (int)DNAseq2[segment.t22].x;
+            segment.y22 = (int)DNAseq2[segment.t22].y;
+            if (best == 0)
+                segment.confidence = 0;
+            else
+                segment.confidence = Math.Sqrt((double)(length * length) / best);
+
+            return segment;
+
+        }
+
+        // Partial Match Algorithm
+        public static Match partialColorMatch(List<Phi> DNAseq1, List<Phi> DNAseq2)
+        {
+            bool flag = true; // ToDo: Compare the control points in contours between two parts
+            Match segment; // create an empty match segment
+            segment.t11 = 0;
+            segment.t12 = 0;
+            segment.t21 = 0;
+            segment.t22 = 0;
+
+            List<Phi> seq1, seq2; // two empty List of edge maps
+            int best = 0, max_match;
+            int offset = 0, length = 0;
+            if (DNAseq1.Count > DNAseq2.Count) // if the contour in first part has more control points than the second part
+            {
+                seq1 = replicateDNA(DNAseq1);//replicate the larger DNA
+
+                seq2 = DNAseq2.ToList();//reverse the smaller one
+                seq2.Reverse();
+            }
+            else
+            {
+                flag = false;
+                seq1 = replicateDNA(DNAseq2); // if the first one has less control point, attach all the control points of the second part
+                seq2 = DNAseq1.ToList();//reverse the smaller one
+                seq2.Reverse();
+            }
+            List<int> zc = new List<int>();
+            List<int> starts = new List<int>();
+            for (int shift = 0; shift < seq1.Count - seq2.Count; shift +=Constants.STEP)
+            {
+                List<int> diff = new List<int>();
+                bool flag1 = false;
+                int start = 0, end = 0;
+                // TODO: change the differences into color difference (done)
+                int zeroCount = 0;
+                for (int i = 0; i < seq2.Count; ++i)
+                {
+                    int difference = Metrics.colorDifference(seq1[i + shift].color, seq2[i].color);
+                    if (difference == 0)
+                    {
+                        if (!flag1)
+                        {
+                            flag1 = true;
+                            start = i;
+                            starts.Add(start);
+                        }
+                        zeroCount++;
+                    }
+                    diff.Add(difference);
+                }
+                zc.Add(zeroCount);
+                if (zeroCount == 0)
+                {
+                    starts.Add(-1);
+                }
+                // TTODO: implement a histogram algorithm for color match
+                //max_match = colorHistogram(diff, seq2, ref start, ref end, Util.DELTA_THETA);
+                max_match = 0;
+                /*if (end < start)
+                {
+                    Console.WriteLine("22");
+                }*/
+
+                /* if (best < max_match)
+                 {
+                     offset = shift;
+                     best = max_match;
+                     int t_start = start + shift;
+                     int t_end = end + shift;
+                     if (start + shift >= seq1.Count / 2)
+                         t_start = start + shift - seq1.Count / 2;
+                     if (end + shift >= seq1.Count / 2)
+                         t_end = end + shift - seq1.Count / 2;
+                     length = t_start - t_end; // problematic
+
+
+                     if (flag)
+                     {
+                         segment.t21 = seq2.Count - end - 1;
+                         segment.t22 = seq2.Count - start - 1;
+                         segment.t11 = t_start;
+                         segment.t12 = t_end;
+                     }
+                     else
+                     {
+                         segment.t11 = seq2.Count - end - 1;
+                         segment.t12 = seq2.Count - start - 1;
+                         segment.t21 = t_start;
+                         segment.t22 = t_end;
+                     }
+                 } */
+            }
+
+            Console.WriteLine("Max:" + zc.Max());
+            int t_shift = 0;
+            int s_start = 0;
+            for (int i = 0; i < zc.Count; i++)
+            {
+                if (zc[i] == zc.Max())
+                {
+                    t_shift = Constants.STEP * i;
+                    s_start = starts[i];
+                }
+            }
+            int startPos1 = t_shift + s_start;
+            int endPos1 = startPos1 + zc.Max();
+            int startPos2 = s_start;
+            int endPos2 = startPos2 + zc.Max();
+            length = zc.Max();
+            // check if the algorithm get the correct position of the matching color
+            Console.WriteLine("Flag:" + flag);
+            Console.WriteLine("Shiftreq:" + startPos1);
+            Console.WriteLine("Count:" + DNAseq1.Count);
+
+            Console.WriteLine("P1_start_x" + seq1[startPos1].x);
+            Console.WriteLine("P1_start_y" + seq1[startPos1].y);
+            Console.WriteLine("P1_end_x" + seq1[endPos1].x);
+            Console.WriteLine("P1_end_y" + seq1[endPos1].y);
+
+            Console.WriteLine("P2_start_x" + seq2[startPos2].x);
+            Console.WriteLine("P2_start_y" + seq2[startPos2].y);
+            Console.WriteLine("P2_end_x" + seq2[endPos2].x);
+            Console.WriteLine("P2_end_y" + seq2[endPos2].y);
+
+            // regression analysis for the relationship between seq and DNA
+            // flag=true for 3*3 frag5 and frag6
+            if (flag)
+            {
+
+                for (int j = 0; j < DNAseq1.Count; j++)
+                {
+                    if ((seq1[startPos1].x == DNAseq1[j].x) && (seq1[startPos1].y == DNAseq1[j].y))
+                    {
+                        segment.t11 = j;
+                        //segment.x11 = (int)DNAseq1[j].x;
+                        // segment.y11 = (int)DNAseq1[j].y;
+                        segment.t12 = j + zc.Max();
+                        if (segment.t12 >= DNAseq1.Count)
+                        {
+                            segment.t12 -= DNAseq1.Count;
+                        }
+                        //segment.x12 = (int)DNAseq1[j + zc.Max()].x;
+                        //segment.y12 = (int)DNAseq1[j + zc.Max()].y;
+                    }
+                }
+
+
+                for (int j = 0; j < DNAseq2.Count; j++)
+                {
+                    if ((seq2[startPos2].x == DNAseq2[j].x) && (seq2[startPos2].y == DNAseq2[j].y))
+                    {
+                        segment.t21 = j;
+                        //segment.x21 = (int)DNAseq2[j].x;
+                        //segment.y21 = (int)DNAseq2[j].y;
+                        segment.t22 = j - zc.Max();
+                        if (segment.t22 < 0)
+                        {
+                            segment.t22 += DNAseq2.Count;
+                        }
+                        //segment.x22 = (int)DNAseq2[j - zc.Max()].x;
+                        //segment.y22 = (int)DNAseq2[j - zc.Max()].y;
+                    }
+                }
+
+            }
+            else
+            {
+                for (int j = 0; j < DNAseq2.Count; j++)
+                {
+                    if ((seq1[startPos1].x == DNAseq2[j].x) && (seq1[startPos1].y == DNAseq2[j].y))
+                    {
+                        segment.t11 = j;
+                        //segment.x11 = (int)DNAseq2[j].x;
+
+                        //segment.y11 = (int)DNAseq2[j].y;
+                        segment.t12 = j - zc.Max();
+                        if (segment.t12 < 0)
+                        {
+                            segment.t12 += DNAseq2.Count;
+                        }
+                        // segment.x12 = (int)DNAseq2[j - zc.Max()].x;
+                        //segment.y12 = (int)DNAseq2[j - zc.Max()].y;
+                    }
+                }
+
+                for (int j = 0; j < DNAseq1.Count; j++)
+                {
+                    if ((seq2[startPos2].x == DNAseq1[j].x) && (seq2[startPos2].y == DNAseq1[j].y))
+                    {
+                        segment.t21 = j;
+                        // segment.x21 = (int)DNAseq1[j].x;
+                        // segment.y21 = (int)DNAseq1[j].y;
+                        segment.t22 = j + zc.Max();
+                        if (segment.t22 >= DNAseq1.Count)
+                        {
+                            segment.t22 -= DNAseq1.Count;
+                        }
+                        //segment.x22 = (int)DNAseq1[j + zc.Max()].x;
+                        //segment.y22 = (int)DNAseq1[j + zc.Max()].y;
+                    }
+                }
+
+            }
+
+
+
+            /*int t_start = t_shift;
+            int t_end = t_shift;
+            if (t_shift >= seq1.Count / 2)
+                t_start = t_shift - seq1.Count / 2;
+            if (t_shift >= seq1.Count / 2)
+                t_end = t_shift - seq1.Count / 2;
+            length = zc.Max(); // problematic
+
+
+            /*if (flag)
+            {
+                segment.t21 = seq2.Count - -1;
+                segment.t22 = seq2.Count - t_start - 1;
+                segment.t11 = t_start;
+                segment.t12 = t_end;
+            }
+            else
+            {
+                segment.t11 = seq2.Count - t_end - 1;
+                segment.t12 = seq2.Count - t_start - 1;
+                segment.t21 = t_start;
+                segment.t22 = t_end;
+            }*/
+
+            // fine code below
+
+
+            segment.x11 = (int)DNAseq1[segment.t11].x;
+            segment.y11 = (int)DNAseq1[segment.t11].y;
+            segment.x12 = (int)DNAseq1[segment.t12].x;
+            segment.y12 = (int)DNAseq1[segment.t12].y;
+
+            segment.x21 = (int)DNAseq2[segment.t21].x;
+            segment.y21 = (int)DNAseq2[segment.t21].y;
+            segment.x22 = (int)DNAseq2[segment.t22].x;
+            segment.y22 = (int)DNAseq2[segment.t22].y;
+
+            /*if (best == 0)
+                segment.confidence = 0;
+            else
+                segment.confidence = Math.Sqrt((double)(length * length) / best); */
+            segment.confidence = length;
+            return segment;
+
+        }
+
+        private static int histogram(List<int> diff, List<Phi> seq, ref int t_start, ref int t_end, int delta_theta = 5)
+        {
+            int max_theta, min_theta;
+            extreme(diff, out min_theta, out max_theta);
+
+            int max_points = 0, range = 0, change = 0;
+            int startt = 0, endd = 0;
+            for (int i = min_theta; i <= max_theta - delta_theta; i += delta_theta)
+            {
+                int points = 0, _change = 0;
+                List<int> thetas = new List<int>();
+                bool flag = false;
+                for (int j = 0; j < diff.Count; ++j)
+                {
+                    if (diff[j] >= i && diff[j] < i + delta_theta)
+                    {
+                        if (!flag)
+                        {
+                            startt = j;
+                            flag = true;
+                        }
+                        endd = j;
+                        points++;//Points that lie in sampling zone
+                        thetas.Add((int)seq[j].theta);
+                    }
+                }
+
+                //apply conditions
+                _change = changes(thetas);
+                if (max_points < points && _change > 3)
+                {
+                    max_points = points;
+                    change = _change;
+                    range = i;
+                    t_start = startt;
+                    t_end = endd;
+                }
+            }
+
+            if (t_end - t_start > max_points * Constants.MULT)
+            {
+                int max_count = 0;
+                int offset = 0;
+                for (int shift = 0; shift < t_end - t_start - max_points * Constants.MULT; shift++)
+                {
+                    int count = 0;
+                    for (int i = 0; i < max_points * Constants.MULT; ++i)
+                    {
+                        if (diff[t_start + i + shift] >= range && diff[t_start + i + shift] < range + delta_theta)
+                            count++;
+                    }
+                    if (max_count < count)
+                    {
+                        max_count = count;
+                        offset = shift;
+                    }
+                }
+                t_start += offset;
+                t_end = t_start + max_count * Constants.MULT;
+            }
+            return change;
+
+        }
+
+        private static int changes(List<int> X)
+        {
+            if (X.Count == 0)
+                return 0;
+
+            int initial = X[0];
+            int count = 0;
+            for (int i = 1; i < X.Count; ++i)
+            {
+                if (Math.Abs(X[i] - initial) > Constants.MIN_TURN)
+                {
+                    count++;
+                    initial = X[i];
+                }
+            }
+            return count;
+        }
+
+        private static void extreme(List<int> input, out int min, out int max)
+        {
+            max = input[0];
+            min = input[0];
+            for (int i = 1; i < input.Count; ++i)
+            {
+                if (max < input[i])
+                    max = input[i];
+                if (min > input[i])
+                    min = input[i];
+            }
+        }
+    }
+}
