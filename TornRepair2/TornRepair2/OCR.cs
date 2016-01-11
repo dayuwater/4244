@@ -19,6 +19,7 @@ namespace TornRepair2
 
             Image<Gray, byte> gray = img.Convert<Gray, Byte>();
             {
+                
                 _ocr.Recognize(gray);
                 Tesseract.Charactor[] charactors = _ocr.GetCharactors();
                 /*foreach (Tesseract.Charactor c in charactors)

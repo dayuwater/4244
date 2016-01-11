@@ -36,12 +36,14 @@ namespace TornRepair2
             dataGridView1.Rows.Clear();
             for (int i = 0; i < Form1.sourceImages.Count; i++)
             {
-
-                using (Image<Bgr, Byte> thumbnail = Form1.sourceImages[i].Resize(150, 150, INTER.CV_INTER_CUBIC, true))
+                if (/*Form1.matched[i] == false*/true)
                 {
-                    DataGridViewRow row = dataGridView1.Rows[dataGridView1.Rows.Add()];
-                    row.Cells["SourceImage"].Value = thumbnail.ToBitmap();
-                    row.Height = 150;
+                    using (Image<Bgr, Byte> thumbnail = Form1.sourceImages[i].Resize(150, 150, INTER.CV_INTER_CUBIC, true))
+                    {
+                        DataGridViewRow row = dataGridView1.Rows[dataGridView1.Rows.Add()];
+                        row.Cells["SourceImage"].Value = thumbnail.ToBitmap();
+                        row.Height = 150;
+                    }
                 }
             }
             ConfidenceView.Text = confidence.ToString();
@@ -58,7 +60,8 @@ namespace TornRepair2
             {
                 if (cmap.imageIndex == num)
                 {
-                    listBox1.Items.Add("Contour " + index );
+                    
+                    listBox1.Items.Add("Contour " + index+cmap.matched.ToString() );
                     index++;
                 }
             }
@@ -185,6 +188,46 @@ namespace TornRepair2
         {
             MatchHistory history = new MatchHistory();
             history.Show();
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            double maxConfidence = 0.0;
+            ColorfulContourMap map1 = new ColorfulContourMap();
+            ColorfulContourMap map2 = new ColorfulContourMap();
+            // algorithm:
+            // search for all unmatched pairs, calculate the confidence level 
+            // calculate the intersection for each matching pair
+            // if the intersection > 5000, reject
+            // the pair with highest confidence with a valid intersection is the best
+            foreach (ColorfulContourMap cmap in Form1.contourMaps)
+            {
+                if (cmap.matched == false)
+                {
+                    foreach(ColorfulContourMap cmap2 in Form1.contourMaps)
+                    {
+                        if (cmap2.matched == false&&cmap!=cmap2)
+                        {
+                            double confidence = DNAUtil.partialMatch(cmap.extractDNA(), cmap2.extractDNA()).confidence;
+                            if (confidence > maxConfidence)
+                            {
+                                maxConfidence = confidence;
+                                map1 = cmap;
+                                map2 = cmap2;
+                            }
+                        }
+                    }
+                }
+            }
+            Console.WriteLine(maxConfidence);
+            Console.WriteLine(map1.imageIndex);
+            Console.WriteLine(map2.imageIndex);
+
         }
     }
 }

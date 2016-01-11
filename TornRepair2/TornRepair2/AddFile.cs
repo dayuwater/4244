@@ -58,7 +58,8 @@ namespace TornRepair2
             {
                 if (status == 0)
                 {
-                    Form1.sourceImages.Add(img1.Resize(0.3,INTER.CV_INTER_CUBIC));
+                    Form1.sourceImages.Add(img1/*.Resize(0.3,INTER.CV_INTER_CUBIC)*/);
+                   
                 }
                 else
                 {

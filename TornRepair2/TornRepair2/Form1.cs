@@ -21,10 +21,12 @@ namespace TornRepair2
         public static int status = 0; // 0 for torn photo, 1 for torn document
         public static List<Image<Bgr, byte>> sourceImages=new List<Image<Bgr, byte>>(); // the source image fragments
         public static List<ColorfulContourMap> contourMaps = new List<ColorfulContourMap>(); // the contour maps
+       
         public static List<Image<Bgr, byte>> finalImages = new List<Image<Bgr, byte>>();
         public static List<List<Image<Bgr, byte>>> candidateImages = new List<List<Image<Bgr, byte>>>();
         public static Image<Bgr, byte> coverImage=new Image<Bgr, byte>(640,480);
         public static List<MatchHistoryData> matchHistory = new List<MatchHistoryData>();
+
 
 
 

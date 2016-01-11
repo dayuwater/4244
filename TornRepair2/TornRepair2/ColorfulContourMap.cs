@@ -19,6 +19,7 @@ namespace TornRepair2
         public int Height { get; internal set; }
         public Point Center { get; internal set; }
         public int imageIndex { get; internal set; }
+        public bool matched = false;
 
         // static factory methods
         public static ColorfulContourMap getMaxContourMap(Image<Bgr, byte> input,int index)
@@ -61,6 +62,7 @@ namespace TornRepair2
                     pcps.Add(cp);
                 }
                 result = new ColorfulContourMap(cps, pcps,index);
+                result.matched = false;
                 
             }
             return result;

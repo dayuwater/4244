@@ -185,8 +185,15 @@ namespace TornRepair2
         private void button4_Click(object sender, EventArgs e)
         {
             Form1.sourceImages.Add(joined);
+            map1.matched = true;
+            map2.matched = true;
+
             List<ColorfulContourMap> cmap = ColorfulContourMap.getAllContourMap(joined, Form1.sourceImages.Count-1);
             Form1.contourMaps.AddRange(cmap);
+            
+            
+
+
             Close();
         }
 
