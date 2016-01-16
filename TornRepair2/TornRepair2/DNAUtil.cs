@@ -243,6 +243,8 @@ namespace TornRepair2
             Console.WriteLine("P2_end_x" + seq2[endPos2].x);
             Console.WriteLine("P2_end_y" + seq2[endPos2].y);
 
+            // correct for all the code above
+
             // regression analysis for the relationship between seq and DNA
             // flag=true for 3*3 frag5 and frag6
             if (flag)
@@ -290,14 +292,14 @@ namespace TornRepair2
                 {
                     if ((seq1[startPos1].x == DNAseq2[j].x) && (seq1[startPos1].y == DNAseq2[j].y))
                     {
-                        segment.t11 = j;
+                        segment.t21 = j;
                         //segment.x11 = (int)DNAseq2[j].x;
 
                         //segment.y11 = (int)DNAseq2[j].y;
-                        segment.t12 = j - zc.Max();
-                        if (segment.t12 < 0)
+                        segment.t22 = j + zc.Max();
+                        if (segment.t22 >= DNAseq2.Count)
                         {
-                            segment.t12 += DNAseq2.Count;
+                            segment.t22 -= DNAseq2.Count;
                         }
                         // segment.x12 = (int)DNAseq2[j - zc.Max()].x;
                         //segment.y12 = (int)DNAseq2[j - zc.Max()].y;
@@ -308,13 +310,13 @@ namespace TornRepair2
                 {
                     if ((seq2[startPos2].x == DNAseq1[j].x) && (seq2[startPos2].y == DNAseq1[j].y))
                     {
-                        segment.t21 = j;
+                        segment.t11 = j;
                         // segment.x21 = (int)DNAseq1[j].x;
                         // segment.y21 = (int)DNAseq1[j].y;
-                        segment.t22 = j + zc.Max();
-                        if (segment.t22 >= DNAseq1.Count)
+                        segment.t12 = j - zc.Max();
+                        if (segment.t12 < 0)
                         {
-                            segment.t22 -= DNAseq1.Count;
+                            segment.t12 += DNAseq1.Count;
                         }
                         //segment.x22 = (int)DNAseq1[j + zc.Max()].x;
                         //segment.y22 = (int)DNAseq1[j + zc.Max()].y;
@@ -362,15 +364,18 @@ namespace TornRepair2
             segment.x22 = (int)DNAseq2[segment.t22].x;
             segment.y22 = (int)DNAseq2[segment.t22].y;
 
+            // correct at this point
             /*if (best == 0)
                 segment.confidence = 0;
             else
                 segment.confidence = Math.Sqrt((double)(length * length) / best); */
             segment.confidence = length;
+            Console.WriteLine(segment.ToString());
             return segment;
 
         }
 
+        // TODO: try from 0 to 4, use edge map
         private static int histogram(List<int> diff, List<Phi> seq, ref int t_start, ref int t_end, int delta_theta = 5)
         {
             int max_theta, min_theta;

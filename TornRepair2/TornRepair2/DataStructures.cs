@@ -38,6 +38,12 @@ namespace TornRepair2
         public int x21, y21, x22, y22; //starting and ending coordinates for piece2
         public double confidence;
 
+        new public String ToString()
+        {
+            return String.Format("Piece 1:({0},{1})->({2},{3})",x11,y11,x12,y12)+"\n"+
+                String.Format("Piece 2:({0},{1})->({2},{3})", x21, y21, x22, y22);
+        }
+
     }
 
     public struct ReturnImg

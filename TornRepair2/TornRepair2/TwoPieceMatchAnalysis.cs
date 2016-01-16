@@ -79,16 +79,83 @@ namespace TornRepair2
                 edgeMatch = DNAUtil.partialColorMatch(DNA1, DNA2);
                 List<Point> pointToDraw1 = new List<Point>();
                 List<Point> pointToDraw2 = new List<Point>();
-                for (int i = edgeMatch.t11; i < edgeMatch.t12; i++)
+               
+                
+                if (edgeMatch.t11 > edgeMatch.t12)
                 {
-                    pointToDraw1.Add(new Point((int)DNA1[i].x, (int)DNA1[i].y));
+                    /*for(int i=edgeMatch.t11; i < DNA1.Count; i++)
+                    {
+                        pointToDraw1.Add(new Point((int)DNA1[i].x, (int)DNA1[i].y));
+                    }
+                    for(int i=0; i<=edgeMatch.t12; i++)
+                    {
+                        pointToDraw1.Add(new Point((int)DNA1[i].x, (int)DNA1[i].y));
+                    }*/
+                    for (int i = edgeMatch.t12; i < edgeMatch.t11; i++)
+                    {
+                        pointToDraw1.Add(new Point((int)DNA1[i].x, (int)DNA1[i].y));
 
+                    }
                 }
-                for (int i = edgeMatch.t21; i < edgeMatch.t22; i++)
+                else
                 {
-                    pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+                    
+                    for (int i = edgeMatch.t11; i < edgeMatch.t12; i++)
+                    {
+                        pointToDraw1.Add(new Point((int)DNA1[i].x, (int)DNA1[i].y));
 
+                    }
                 }
+
+                // the piece 2 should draw reversely
+                /*if (edgeMatch.t21 > edgeMatch.t22)
+                {
+                    for (int i = edgeMatch.t22; i > -1; i--)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+                    }
+                    for (int i = DNA2.Count-1; i >= edgeMatch.t21; i--)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+                    }
+                    
+                }
+                else
+                {
+
+                    for (int i = edgeMatch.t22; i >= edgeMatch.t21; i--)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+
+                    }
+                }*/
+
+                if (edgeMatch.t21 > edgeMatch.t22)
+                {
+                    /*for (int i = edgeMatch.t21; i< DNA2.Count; i++)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+                    }
+                    for (int i = 0; i <= edgeMatch.t22; i++)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+                    }*/
+                    for (int i = edgeMatch.t22; i < edgeMatch.t21; i++)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+
+                    }
+                }
+                else
+                {
+
+                    for (int i = edgeMatch.t21; i < edgeMatch.t22; i++)
+                    {
+                        pointToDraw2.Add(new Point((int)DNA2[i].x, (int)DNA2[i].y));
+
+                    }
+                }
+
                 pic1.DrawPolyline(pointToDraw1.ToArray(), false, new Bgr(0, 255, 0), 2);
                 pic2.DrawPolyline(pointToDraw2.ToArray(), false, new Bgr(0, 255, 0), 2);
                 pictureBox1.Image = pic1.Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).ToBitmap();
