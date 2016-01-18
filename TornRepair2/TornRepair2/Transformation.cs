@@ -20,25 +20,47 @@ namespace TornRepair2
         {
             centroid1.X = 0; centroid1.Y = 0;
             centroid2.X = 0; centroid2.Y = 0;
-            for (int i = segment.t11; i <= segment.t12; ++i)
+            if (segment.t11 > segment.t12)
             {
-                centroid1.X += (int)DNAseq1[i].x;
-                centroid1.Y += (int)DNAseq1[i].y;
+                for (int i = segment.t12; i <= segment.t11; ++i)
+                {
+                    centroid1.X += (int)DNAseq1[i].x;
+                    centroid1.Y += (int)DNAseq1[i].y;
+                }
             }
-            centroid1.X /= (segment.t12 - segment.t11 + 1);
-            centroid1.Y /= (segment.t12 - segment.t11 + 1);
+            else
+            {
+                for (int i = segment.t11; i <= segment.t12; ++i)
+                {
+                    centroid1.X += (int)DNAseq1[i].x;
+                    centroid1.Y += (int)DNAseq1[i].y;
+                }
+            }
+            centroid1.X /= Math.Abs(segment.t12 - segment.t11 + 1);
+            centroid1.Y /= Math.Abs(segment.t12 - segment.t11 + 1);
 
-            for (int i = segment.t21; i <= segment.t22; ++i)
+            if (segment.t22 < segment.t21)
             {
-                centroid2.X += (int)DNAseq2[i].x;
-                centroid2.Y += (int)DNAseq2[i].y;
+                for (int i = segment.t22; i <= segment.t21; ++i)
+                {
+                    centroid2.X += (int)DNAseq2[i].x;
+                    centroid2.Y += (int)DNAseq2[i].y;
+                }
             }
-            centroid2.X /= (segment.t22 - segment.t21 + 1);
-            centroid2.Y /= (segment.t22 - segment.t21 + 1);
+            else
+            {
+                for (int i = segment.t21; i <= segment.t22; ++i)
+                {
+                    centroid2.X += (int)DNAseq2[i].x;
+                    centroid2.Y += (int)DNAseq2[i].y;
+                }
+            }
+            centroid2.X /= Math.Abs(segment.t22 - segment.t21 + 1);
+            centroid2.Y /= Math.Abs(segment.t22 - segment.t21 + 1);
 
             Complex sum = new Complex(0, 0);
             // assume u=angle 1 on fragment 1, v=angle 2 on fragment 2
-            for (int i = segment.t11, j = segment.t21; i <= segment.t12; ++i, ++j)
+            for (int i = Math.Min(segment.t11,segment.t12), j = Math.Min(segment.t21,segment.t22); i <= Math.Max(segment.t12,segment.t11); ++i, ++j)
             {
                 Complex u = new Complex(DNAseq1[i].x - centroid1.X, DNAseq1[i].y - centroid1.Y);
                 Complex v = new Complex(DNAseq2[j].x - centroid2.X, DNAseq2[j].y - centroid2.Y);
@@ -46,6 +68,9 @@ namespace TornRepair2
             }
             // get the average of all the angle differences, which is the angle need to rotate
             angle = sum.Phase; // this is in radian
+            Console.WriteLine(String.Format("Center1:({0},{1})",centroid1.X, centroid1.Y));
+            Console.WriteLine(String.Format("Center2:({0},{1})", centroid2.X, centroid2.Y));
+            Console.WriteLine("Turning Angle:" + angle);
         }
 
         public static int quadrant(Point p)
