@@ -309,6 +309,7 @@ namespace TornRepair2
             Image<Bgr, byte> ri = new Image<Bgr, byte>(2 * (img2.Width - (int)x), 2 * (img2.Height - (int)y), new Bgr(255, 255, 255));
 
             Point oldc = new Point((int)x, (int)y);
+            bool success = false; // if the tweaking is not successful, return false
             // inverse y axis
             // y2 = -y;
             // rotation of centeroid 
@@ -421,18 +422,20 @@ namespace TornRepair2
                         int j_new = j + t1.X;
                         try {
                             dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
+                            dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
+                            dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
+                            dst_mask.Data[i_new, j_new, 0] = 255;
+                            dst_mask.Data[i_new, j_new, 1] = 255;
+                            dst_mask.Data[i_new, j_new, 2] = 255;
                         }
                         catch
                         {
-                            MessageBox.Show("You cannot tweak in that direction further");
+                            //MessageBox.Show("You cannot tweak in that direction further");
+                            success = false;
                             goto ret;
                             
                         }
-                        dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
-                        dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
-                        dst_mask.Data[i_new, j_new, 0] = 255;
-                        dst_mask.Data[i_new, j_new, 1] = 255;
-                        dst_mask.Data[i_new, j_new, 2] = 255;
+                        
                     }
                 }
             }
@@ -464,7 +467,8 @@ namespace TornRepair2
                         }
                         catch
                         {
-                            MessageBox.Show("You cannot tweak in that direction further");
+                            //MessageBox.Show("You cannot tweak in that direction further");
+                            success = false;
                             goto ret;
                         }
 
@@ -478,7 +482,7 @@ namespace TornRepair2
 
 
 
-
+            success = true;
 
             /*cvReleaseImage(&E);
             cvReleaseImage(&E_mask);*/ // should not need these two lines because of garbage collection
@@ -498,10 +502,11 @@ namespace TornRepair2
                 img.center2old = oldc;
                 img.center2new = centroid2;
                 img.centerLinee = centerLine;
-                img.returnbool = false;
+                img.returnbool = false; // for determining if the image is matched or not
                 img.translate1 = t1;
                 img.translate2 = t2;
                 img.overlap = intersections;
+                img.success = success; // for tweak only
                 return img;
             }
             else
@@ -515,10 +520,11 @@ namespace TornRepair2
                 img.center2old = oldc;
                 img.center2new = centroid2;
                 img.centerLinee = centerLine;
-                img.returnbool = true;
+                img.returnbool = true; // for determining if the image is matched or not
                 img.translate1 = t1;
                 img.translate2 = t2;
                 img.overlap = intersections;
+                img.success = success; // for tweak only
                 return img;
             }
         }

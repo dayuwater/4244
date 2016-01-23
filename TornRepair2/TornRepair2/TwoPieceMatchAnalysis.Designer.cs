@@ -42,7 +42,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.CursorXText = new System.Windows.Forms.Label();
             this.CursorYText = new System.Windows.Forms.Label();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.button4 = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -60,10 +59,12 @@
             this.button12 = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.button13 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
@@ -206,18 +207,9 @@
             this.CursorYText.TabIndex = 11;
             this.CursorYText.Text = "0";
             // 
-            // pictureBox3
-            // 
-            this.pictureBox3.Location = new System.Drawing.Point(132, 824);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(661, 546);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox3.TabIndex = 12;
-            this.pictureBox3.TabStop = false;
-            // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(899, 1117);
+            this.button4.Location = new System.Drawing.Point(789, 1100);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(234, 149);
             this.button4.TabIndex = 13;
@@ -228,7 +220,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(908, 905);
+            this.label5.Location = new System.Drawing.Point(770, 905);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(121, 25);
             this.label5.TabIndex = 14;
@@ -237,7 +229,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(908, 978);
+            this.label6.Location = new System.Drawing.Point(770, 978);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(87, 25);
             this.label6.TabIndex = 15;
@@ -308,7 +300,7 @@
             this.groupBox2.Controls.Add(this.button7);
             this.groupBox2.Controls.Add(this.button6);
             this.groupBox2.Controls.Add(this.button5);
-            this.groupBox2.Location = new System.Drawing.Point(1205, 737);
+            this.groupBox2.Location = new System.Drawing.Point(123, 850);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(488, 340);
             this.groupBox2.TabIndex = 22;
@@ -322,7 +314,7 @@
             this.groupBox3.Controls.Add(this.button10);
             this.groupBox3.Controls.Add(this.button11);
             this.groupBox3.Controls.Add(this.button12);
-            this.groupBox3.Location = new System.Drawing.Point(1205, 1083);
+            this.groupBox3.Location = new System.Drawing.Point(1212, 850);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(488, 340);
             this.groupBox3.TabIndex = 23;
@@ -387,12 +379,42 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "label8";
             // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(789, 1291);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(234, 101);
+            this.button13.TabIndex = 24;
+            this.button13.Text = "Report";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(1095, 1291);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(178, 90);
+            this.button14.TabIndex = 25;
+            this.button14.Text = "Auto Tweak";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(123, 1261);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(488, 66);
+            this.progressBar1.TabIndex = 26;
+            // 
             // TwoPieceMatchAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1712, 1419);
+            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.button14);
+            this.Controls.Add(this.button13);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.OverlapView);
@@ -400,7 +422,6 @@
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.button4);
-            this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.CursorYText);
             this.Controls.Add(this.CursorXText);
             this.Controls.Add(this.label4);
@@ -420,7 +441,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -446,7 +466,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label CursorXText;
         private System.Windows.Forms.Label CursorYText;
-        private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
@@ -464,5 +483,8 @@
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }

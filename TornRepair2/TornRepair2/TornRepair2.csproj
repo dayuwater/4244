@@ -132,6 +132,12 @@
     <Compile Include="DisplayBestMatch.Designer.cs">
       <DependentUpon>DisplayBestMatch.cs</DependentUpon>
     </Compile>
+    <Compile Include="DisplayImage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DisplayImage.Designer.cs">
+      <DependentUpon>DisplayImage.cs</DependentUpon>
+    </Compile>
     <Compile Include="DNAUtil.cs" />
     <Compile Include="DocumentConfirm.cs">
       <SubType>Form</SubType>
@@ -187,6 +193,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DisplayBestMatch.resx">
       <DependentUpon>DisplayBestMatch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DisplayImage.resx">
+      <DependentUpon>DisplayImage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DocumentConfirm.resx">
       <DependentUpon>DocumentConfirm.cs</DependentUpon>

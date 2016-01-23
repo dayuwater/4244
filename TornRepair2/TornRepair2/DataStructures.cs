@@ -78,6 +78,7 @@ namespace TornRepair2
         public Point translate1; // t1
         public Point translate2; // t2
         public double overlap;
+        public bool success;
     }
 
     public struct MatchHistoryData

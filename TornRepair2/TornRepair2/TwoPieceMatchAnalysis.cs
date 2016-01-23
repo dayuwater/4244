@@ -244,7 +244,7 @@ namespace TornRepair2
             mask2 = pic2.Clone();
             ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle,p1Tweak,p2Tweak);
             joined = result.img;
-            pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
+            //pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
             confidence = edgeMatch.confidence;
             overlap = result.overlap;
             ConfidenceView.Text = confidence.ToString();
@@ -283,12 +283,21 @@ namespace TornRepair2
             mask2 = pic2.Clone();
             ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle+180,p1Tweak,p2Tweak);
             joined = result.img;
-            pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
+            //pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
             confidence = edgeMatch.confidence;
             overlap = result.overlap;
             ConfidenceView.Text = confidence.ToString();
             OverlapView.Text = overlap.ToString();
             AddMatchHistory();
+            if (result.success)
+            {
+                DisplayImage dip = new DisplayImage(result.img, p1Tweak, p2Tweak, (int)overlap);
+                dip.Show();
+            }
+            else
+            {
+                MessageBox.Show("You cannot tweak further in that direction");
+            }
         }
 
         private void AddMatchHistory()
@@ -342,6 +351,29 @@ namespace TornRepair2
         {
             p2Tweak.X++;
             label8.Text = p2Tweak.ToString();
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            // TODO : Tomorrow
+            // prompt to save the file
+            // open PDF writer
+            // for each tweakable data in 5*5 for each image
+                // write overlap into PDF
+                // print the image to PDF
+                // move on to next page
+                // progress the bar
+            // close PDF writer
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            // TODO : Monday
+            // for each tweakble data in 5*5
+                // try to transform the images
+                // calculate the overlap
+                // find for minimum overlap
+            // take the tweak number for the minimum overlap
         }
     }
 }
