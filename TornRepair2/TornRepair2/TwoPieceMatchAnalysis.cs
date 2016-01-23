@@ -33,10 +33,15 @@ namespace TornRepair2
         private List<Phi> DNA2;
         private double confidence=0;
         private double overlap=0;
+
+        private Point p1Tweak=new Point(0,0);
+        private Point p2Tweak=new Point(0,0);
         
         public TwoPieceMatchAnalysis()
         {
             InitializeComponent();
+            label7.Text = p1Tweak.ToString();
+            label8.Text = p2Tweak.ToString();
            
 
         }
@@ -237,7 +242,7 @@ namespace TornRepair2
             Console.WriteLine(angle);
             mask1 = pic1.Clone();
             mask2 = pic2.Clone();
-            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle);
+            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle,p1Tweak,p2Tweak);
             joined = result.img;
             pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
             confidence = edgeMatch.confidence;
@@ -276,7 +281,7 @@ namespace TornRepair2
             Console.WriteLine(angle);
             mask1 = pic1.Clone();
             mask2 = pic2.Clone();
-            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle+180);
+            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle+180,p1Tweak,p2Tweak);
             joined = result.img;
             pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
             confidence = edgeMatch.confidence;
@@ -289,6 +294,54 @@ namespace TornRepair2
         private void AddMatchHistory()
         {
             Form1.matchHistory.Add(new MatchHistoryData { img1 = pic1, img2 = pic2, confident = confidence, overlap = overlap });
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            p1Tweak.Y--;
+            label7.Text = p1Tweak.ToString();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            p1Tweak.X++;
+            label7.Text = p1Tweak.ToString();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            p1Tweak.Y++;
+            label7.Text = p1Tweak.ToString();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            p1Tweak.X--;
+            label7.Text = p1Tweak.ToString();
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            p2Tweak.Y--;
+            label8.Text = p2Tweak.ToString();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            p2Tweak.Y++;
+            label8.Text = p2Tweak.ToString();
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            p2Tweak.X--;
+            label8.Text = p2Tweak.ToString();
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            p2Tweak.X++;
+            label8.Text = p2Tweak.ToString();
         }
     }
 }

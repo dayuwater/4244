@@ -259,7 +259,7 @@ namespace TornRepair2
                 Image<Bgr,byte> mask2 = pic2.Clone();
                 Image<Bgr, byte> joined=pic1.Clone();
                 Image<Bgr, byte> joined_mask=joined.Clone();
-                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180);
+                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180,new Point(0,0),new Point(0,0));
                 data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap });
                 
 

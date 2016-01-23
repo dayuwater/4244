@@ -291,7 +291,7 @@ namespace TornRepair2
 
         public static ReturnColorImg transformColor(Image<Bgr, Byte> img1, Image<Bgr, Byte> mask1, Image<Bgr, Byte> img2, Image<Bgr, Byte> mask2,
            Image<Bgr, Byte> dst, Image<Bgr, Byte> dst_mask,
-                      Point centroid1, Point centroid2, double angle)
+                      Point centroid1, Point centroid2, double angle,Point tweak1, Point tweak2)
         {
             Image<Bgr, Byte> E = img2.Clone();
             Image<Bgr, Byte> E_mask = mask2.Clone();//Don't ruin original images
@@ -377,6 +377,13 @@ namespace TornRepair2
                     break;
             }
 
+            // add tweak factor
+            t1.X += tweak1.X;
+            t1.Y += tweak1.Y;
+            t2.X += tweak2.X;
+            t2.Y += tweak2.Y;
+
+
             //optimal_h = 1000;
             //optimal_w = 1000;
             dst = new Image<Bgr, byte>(optimal_w, optimal_h);
@@ -412,7 +419,15 @@ namespace TornRepair2
                     {
                         int i_new = i + t1.Y;
                         int j_new = j + t1.X;
-                        dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
+                        try {
+                            dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
+                        }
+                        catch
+                        {
+                            MessageBox.Show("You cannot tweak in that direction further");
+                            goto ret;
+                            
+                        }
                         dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
                         dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
                         dst_mask.Data[i_new, j_new, 0] = 255;
@@ -432,17 +447,28 @@ namespace TornRepair2
                     {
                         int i_new = i + t2.Y;
                         int j_new = j + t2.X;
-                        if (dst_mask.Data[i_new, j_new, 0] != 0)
-                            intersections++;
-                        else
-                        {
-                            dst.Data[i_new, j_new, 0] = E.Data[i, j, 0];
-                            dst.Data[i_new, j_new, 1] = E.Data[i, j, 1];
-                            dst.Data[i_new, j_new, 2] = E.Data[i, j, 2];
-                            dst_mask.Data[i_new, j_new, 0] = 255;
-                            dst_mask.Data[i_new, j_new, 1] = 255;
-                            dst_mask.Data[i_new, j_new, 2] = 255;
+                        try {
+                            if (dst_mask.Data[i_new, j_new, 0] != 0)
+                            {
+                                intersections++;
+                            }
+                            else
+                            {
+                                dst.Data[i_new, j_new, 0] = E.Data[i, j, 0];
+                                dst.Data[i_new, j_new, 1] = E.Data[i, j, 1];
+                                dst.Data[i_new, j_new, 2] = E.Data[i, j, 2];
+                                dst_mask.Data[i_new, j_new, 0] = 255;
+                                dst_mask.Data[i_new, j_new, 1] = 255;
+                                dst_mask.Data[i_new, j_new, 2] = 255;
+                            }
                         }
+                        catch
+                        {
+                            MessageBox.Show("You cannot tweak in that direction further");
+                            goto ret;
+                        }
+
+                       
                     }
                 }
             }
@@ -459,7 +485,7 @@ namespace TornRepair2
 
             // threshold detection is meaningless for 2-piece case, always success
             
-            if (intersections > Constants.THRESHOLD)
+            ret:  if (intersections > Constants.THRESHOLD)
             {
                 /*cvReleaseImage(&dst);//In case of failure in joining
                 cvReleaseImage(&dst_mask);//release memory*/
