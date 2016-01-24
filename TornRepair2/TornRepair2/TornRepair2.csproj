@@ -188,6 +188,7 @@
     <Compile Include="TwoPieceMatchAnalysis.Designer.cs">
       <DependentUpon>TwoPieceMatchAnalysis.cs</DependentUpon>
     </Compile>
+    <Compile Include="WriteImagesToPDF.cs" />
     <EmbeddedResource Include="AddFile.resx">
       <DependentUpon>AddFile.cs</DependentUpon>
     </EmbeddedResource>

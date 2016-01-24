@@ -10,7 +10,9 @@ using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
-
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
 
 namespace TornRepair2
 {
@@ -353,17 +355,71 @@ namespace TornRepair2
             label8.Text = p2Tweak.ToString();
         }
 
+        // Only tweak the second image
         private void button13_Click(object sender, EventArgs e)
         {
             // TODO : Tomorrow
             // prompt to save the file
-            // open PDF writer
-            // for each tweakable data in 5*5 for each image
-                // write overlap into PDF
-                // print the image to PDF
-                // move on to next page
-                // progress the bar
-            // close PDF writer
+           
+            progressBar1.Value = 0;
+            SaveFileDialog sfd = new SaveFileDialog();
+
+            sfd.Filter = "PDF|*.pdf";
+            string filePath = "";
+            string tempDir = "";
+            int fileCount = 0;
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                button13.Enabled = false;
+                filePath = sfd.FileName;
+                Console.WriteLine(filePath);
+                // open PDF writer
+                WriteImagesToPDF writer = new WriteImagesToPDF(filePath);
+               
+                // for each tweakable data in 5*5 for each image
+                for (int i=-2; i<3; i++) // tweak x
+                {
+                    for(int j=-2; j<3; j++) // tweak y
+                    {
+                        // prepare images
+                        pic1 = Form1.sourceImages[map1.imageIndex].Clone();
+                        pic2 = Form1.sourceImages[map2.imageIndex].Clone();
+                        Transformation.transformation(DNA1, DNA2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                        angle = angle * 180 / Math.PI;
+                        angle = -angle;
+
+                        mask1 = pic1.Clone();
+                        mask2 = pic2.Clone();
+                        ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0,0),new Point(i, j) );
+                        if (result.success) // if tweakable
+                        {
+                            writer.AddImage(result.img, String.Format("X-tweak:{0}, Y-tweak:{1}, Overlap:{2}",i,j,result.overlap));
+                        }
+                        // progress the bar
+                        if (progressBar1.Value > 95)
+                        {
+                            progressBar1.Value = 100;
+                        }
+                        else
+                        {
+                            progressBar1.Value += 4;
+                        }
+
+                    }
+                }
+                // write
+                writer.print();
+
+                // close PDF writer
+                MessageBox.Show("Your output file is ready.");
+
+                button13.Enabled = true;
+
+            }
+
+
+
+
         }
 
         private void button14_Click(object sender, EventArgs e)
