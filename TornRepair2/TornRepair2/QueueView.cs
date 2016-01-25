@@ -260,7 +260,7 @@ namespace TornRepair2
                 Image<Bgr, byte> joined=pic1.Clone();
                 Image<Bgr, byte> joined_mask=joined.Clone();
                 ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180,new Point(0,0),new Point(0,0));
-                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap });
+                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap,dna1=m.dna1,dna2=m.dna2,match=m.match });
                 
 
             }
@@ -271,6 +271,48 @@ namespace TornRepair2
                 Console.WriteLine("Map1 " + MinOverlap.map1.imageIndex);
                 Console.WriteLine("Map2 " + MinOverlap.map2.imageIndex);
                 Console.WriteLine("Overlap " + MinOverlap.overlap);
+                // add the resulting image into the queue
+                Image<Bgr, byte> pic1 = Form1.sourceImages[MinOverlap.map1.imageIndex].Clone();
+                Image<Bgr, byte> pic2 = Form1.sourceImages[MinOverlap.map2.imageIndex].Clone();
+                Point centroid1 = new Point();
+                Point centroid2 = new Point();
+                double angle = 0.0;
+                Match edgeMatch = MinOverlap.match;
+                Transformation.transformation(MinOverlap.dna1, MinOverlap.dna2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                angle = angle * 180 / Math.PI;
+                angle = -angle;
+            
+                Image<Bgr, byte> mask1 = pic1.Clone();
+                Image<Bgr, byte> mask2 = pic2.Clone();
+                Image<Bgr, byte> joined = pic1.Clone();
+                Image<Bgr, byte> joined_mask = joined.Clone();
+                // tweak
+                ReturnColorImg bestResult=new ReturnColorImg();
+                double minOverlap = 999999;
+                for(int i=-2;i<3; i++)
+                {
+                    for(int j=-2; j<3; j++)
+                    {
+                        ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
+                        if (result.overlap < minOverlap)
+                        {
+                            bestResult = result;
+                            minOverlap = result.overlap;
+
+                        }
+                       
+                    }
+                }
+                Form1.sourceImages.Add(bestResult.img);
+                MinOverlap.map1.matched = true;
+                MinOverlap.map2.matched = true;
+                List<ColorfulContourMap> cmap = ColorfulContourMap.getAllContourMap(joined, Form1.sourceImages.Count - 1);
+                Form1.contourMaps.AddRange(cmap);
+                this.overlap += bestResult.overlap;
+                
+                refresh();
+                MessageBox.Show("Best Match Found.");
+
             }
             else
             {

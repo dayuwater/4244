@@ -426,10 +426,44 @@ namespace TornRepair2
         {
             // TODO : Monday
             // for each tweakble data in 5*5
-                // try to transform the images
-                // calculate the overlap
-                // find for minimum overlap
-            // take the tweak number for the minimum overlap
+            double minOverlap = 999999;
+            Point tweak = new Point(0, 0);
+            for (int i = -2; i < 3; i++) // tweak x
+            {
+                for (int j = -2; j < 3; j++) // tweak y
+                {
+                    // prepare images
+                    pic1 = Form1.sourceImages[map1.imageIndex].Clone();
+                    pic2 = Form1.sourceImages[map2.imageIndex].Clone();
+                    Transformation.transformation(DNA1, DNA2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                    angle = angle * 180 / Math.PI;
+                    angle = -angle;
+
+                    mask1 = pic1.Clone();
+                    mask2 = pic2.Clone();
+                    ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
+                    if (result.success) // if tweakable
+                    {
+                        if (result.overlap < minOverlap)
+                        {
+                            minOverlap = result.overlap;
+                            tweak.X = i;
+                            tweak.Y = j;
+                        }
+                    }
+                    // progress the bar
+                    if (progressBar1.Value > 95)
+                    {
+                        progressBar1.Value = 100;
+                    }
+                    else
+                    {
+                        progressBar1.Value += 4;
+                    }
+                }
+            }
+            p2Tweak = tweak;
+            label8.Text = p2Tweak.ToString();
         }
     }
 }
