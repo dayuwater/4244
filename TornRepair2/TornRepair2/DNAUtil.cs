@@ -45,6 +45,10 @@ namespace TornRepair2
             List<Phi> seq1, seq2; // two empty List of edge maps
             int best = 0, max_match;
             int offset = 0, length = 0;
+            // sticking
+            // .While comparing a pair of DNA pattern, the smaller one is reversed while the longer one is copied and placed at its tail, 
+            //such that now the angle accumulated over the string is 4π
+
             if (DNAseq1.Count > DNAseq2.Count) // if the contour in first part has more control points than the second part
             {
                 seq1 = replicateDNA(DNAseq1);//replicate the larger DNA
@@ -59,7 +63,8 @@ namespace TornRepair2
                 seq2 = DNAseq1.ToList();//reverse the smaller one
                 seq2.Reverse();
             }
-
+            // sliding
+            //The shorter sequence is slided through the longer one and for every shift ‘d’, the difference Δφabd = φbd – φa is stored
             for (int shift = 0; shift < seq1.Count - seq2.Count; shift += Constants.STEP)
             {
                 List<int> diff = new List<int>();
@@ -379,7 +384,7 @@ namespace TornRepair2
         private static int histogram(List<int> diff, List<Phi> seq, ref int t_start, ref int t_end, int delta_theta = 5)
         {
             int max_theta, min_theta;
-            extreme(diff, out min_theta, out max_theta);
+            extreme(diff, out min_theta, out max_theta); // get the min  angle difference and max angle difference
 
             int max_points = 0, range = 0, change = 0;
             int startt = 0, endd = 0;
@@ -390,7 +395,8 @@ namespace TornRepair2
                 bool flag = false;
                 for (int j = 0; j < diff.Count; ++j)
                 {
-                    if (diff[j] >= i && diff[j] < i + delta_theta)
+                   // Since the DNA signature increases monotonically, at the point where the pattern matches, the difference is nearly a constant. 
+                    if (diff[j] >= i && diff[j] < i + delta_theta) // if the difference lies in the 
                     {
                         if (!flag)
                         {
@@ -405,6 +411,7 @@ namespace TornRepair2
 
                 //apply conditions
                 _change = changes(thetas);
+                // finding the best valid match, only edges with at least 3 turning angles can be counted as a match
                 if (max_points < points && _change > 3)
                 {
                     max_points = points;
@@ -414,11 +421,13 @@ namespace TornRepair2
                     t_end = endd;
                 }
             }
-
+            // this actually means if a match is found or not
+            // this corrects the start point and end point
             if (t_end - t_start > max_points * Constants.MULT)
             {
                 int max_count = 0;
                 int offset = 0;
+                // max_points ( turning points) * multiplier ( min turning angle accepted)= the length of "organized" points
                 for (int shift = 0; shift < t_end - t_start - max_points * Constants.MULT; shift++)
                 {
                     int count = 0;
@@ -427,6 +436,7 @@ namespace TornRepair2
                         if (diff[t_start + i + shift] >= range && diff[t_start + i + shift] < range + delta_theta)
                             count++;
                     }
+                    // find the best start point
                     if (max_count < count)
                     {
                         max_count = count;
@@ -439,7 +449,12 @@ namespace TornRepair2
             return change;
 
         }
-
+        // calculate the turning angle differences in a specific sampling area
+        // the threshold for a change is 3
+        // Ex Point 0=0, Point 1=1, Point 2=4, Point 3=5, Point 4=8
+        // i=0 p1-p0=1 -> p2-p0 =4 , initial = x[2]=4
+        // i=2 p3-p2=1 -> p4-p2= 4, initial=x[4]=8
+        // count =2
         private static int changes(List<int> X)
         {
             if (X.Count == 0)
