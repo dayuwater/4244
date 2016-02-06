@@ -196,7 +196,7 @@ namespace TornRepair2
 
         }
 
-        private void button9_Click(object sender, EventArgs e)
+        private void bestMatchTwo()
         {
             double maxConfidence = 0.0;
             ColorfulContourMap map1 = new ColorfulContourMap();
@@ -217,13 +217,13 @@ namespace TornRepair2
             {
                 if (cmap.matched == false)
                 {
-                    foreach(ColorfulContourMap cmap2 in Form1.contourMaps)
+                    foreach (ColorfulContourMap cmap2 in Form1.contourMaps)
                     {
-                        if (cmap2.matched == false&&cmap!=cmap2)
+                        if (cmap2.matched == false && cmap != cmap2)
                         {
                             Match match = DNAUtil.partialMatch(cmap.extractDNA(), cmap2.extractDNA());
                             double confidence = match.confidence;
-                            matchMetricData.Add(new MatchMetricData { map1 = cmap, map2 = cmap2, confident = confidence,dna1=cmap.extractDNA(),dna2=cmap2.extractDNA(),match=match});
+                            matchMetricData.Add(new MatchMetricData { map1 = cmap, map2 = cmap2, confident = confidence, dna1 = cmap.extractDNA(), dna2 = cmap2.extractDNA(), match = match });
                             if (confidence > maxConfidence)
                             {
                                 maxConfidence = confidence;
@@ -234,7 +234,7 @@ namespace TornRepair2
                     }
                 }
             }
-            matchMetricData=matchMetricData.Where(o=>o.confident>80).OrderBy(o => o.confident).Reverse().ToList();
+            matchMetricData = matchMetricData.Where(o => o.confident > 80).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
             Console.WriteLine(map2.imageIndex);
@@ -245,8 +245,8 @@ namespace TornRepair2
             {
                 Image<Bgr, byte> pic1 = Form1.sourceImages[m.map1.imageIndex].Clone();
                 Image<Bgr, byte> pic2 = Form1.sourceImages[m.map2.imageIndex].Clone();
-                Point centroid1=new Point();
-                Point centroid2=new Point();
+                Point centroid1 = new Point();
+                Point centroid2 = new Point();
                 double angle = 0.0;
                 Match edgeMatch = m.match;
                 Transformation.transformation(m.dna1, m.dna2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
@@ -255,22 +255,22 @@ namespace TornRepair2
                 Console.WriteLine(centroid1.ToString());
                 Console.WriteLine(centroid2.ToString());
                 Console.WriteLine(angle);
-                Image<Bgr,byte> mask1 = pic1.Clone();
-                Image<Bgr,byte> mask2 = pic2.Clone();
-                Image<Bgr, byte> joined=pic1.Clone();
-                Image<Bgr, byte> joined_mask=joined.Clone();
-                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180,new Point(0,0),new Point(0,0));
-                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap,dna1=m.dna1,dna2=m.dna2,match=m.match });
-                
+                Image<Bgr, byte> mask1 = pic1.Clone();
+                Image<Bgr, byte> mask2 = pic2.Clone();
+                Image<Bgr, byte> joined = pic1.Clone();
+                Image<Bgr, byte> joined_mask = joined.Clone();
+                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(0, 0));
+                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap, dna1 = m.dna1, dna2 = m.dna2, match = m.match });
+
 
             }
             MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
             // the pair with highest confidence with a valid intersection is the best
-            if (MinOverlap.overlap<Constants.THRESHOLD)
+            if (MinOverlap.overlap < Constants.THRESHOLD)
             {
                 Console.WriteLine("Map1 " + MinOverlap.map1.imageIndex);
                 Console.WriteLine("Map2 " + MinOverlap.map2.imageIndex);
-                Console.WriteLine("Overlap " + MinOverlap.overlap);
+                Console.WriteLine("Overlap " + MinOverlap.overlap); // correct until this point
                 // add the resulting image into the queue
                 Image<Bgr, byte> pic1 = Form1.sourceImages[MinOverlap.map1.imageIndex].Clone();
                 Image<Bgr, byte> pic2 = Form1.sourceImages[MinOverlap.map2.imageIndex].Clone();
@@ -279,19 +279,24 @@ namespace TornRepair2
                 double angle = 0.0;
                 Match edgeMatch = MinOverlap.match;
                 Transformation.transformation(MinOverlap.dna1, MinOverlap.dna2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                // correct until this point
                 angle = angle * 180 / Math.PI;
                 angle = -angle;
-            
+
                 Image<Bgr, byte> mask1 = pic1.Clone();
                 Image<Bgr, byte> mask2 = pic2.Clone();
                 Image<Bgr, byte> joined = pic1.Clone();
                 Image<Bgr, byte> joined_mask = joined.Clone();
                 // tweak
-                ReturnColorImg bestResult=new ReturnColorImg();
+                ReturnColorImg bestResult = new ReturnColorImg();
                 double minOverlap = 999999;
-                for(int i=-2;i<3; i++)
+                Console.WriteLine(centroid1.ToString());
+                Console.WriteLine(centroid2.ToString()); // correct until this point
+
+                // The tweaking is messing up with the result, I will just ignore this for a moment
+                for (int i = 0; i < 1; i++)
                 {
-                    for(int j=-2; j<3; j++)
+                    for (int j = 0; j < 1; j++)
                     {
                         ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
                         if (result.overlap < minOverlap)
@@ -300,16 +305,16 @@ namespace TornRepair2
                             minOverlap = result.overlap;
 
                         }
-                       
+
                     }
                 }
                 Form1.sourceImages.Add(bestResult.img);
-                MinOverlap.map1.matched = true;
-                MinOverlap.map2.matched = true;
-                List<ColorfulContourMap> cmap = ColorfulContourMap.getAllContourMap(joined, Form1.sourceImages.Count - 1);
+                MinOverlap.map1.matched = true; // correct
+                MinOverlap.map2.matched = true; // correct
+                List<ColorfulContourMap> cmap = ColorfulContourMap.getAllContourMap(bestResult.img, Form1.sourceImages.Count - 1);
                 Form1.contourMaps.AddRange(cmap);
-                this.overlap += bestResult.overlap;
-                
+                this.overlap += bestResult.overlap; // correct
+
                 refresh();
                 MessageBox.Show("Best Match Found.");
 
@@ -319,8 +324,28 @@ namespace TornRepair2
                 Console.WriteLine("Failed");
             }
 
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            bestMatchTwo();
 
 
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            // because only n-1 best matches for two pieces is needed for auto matching, the auto matching process is really simple
+
+            // get the image count
+            int count = Form1.sourceImages.Count;
+            // best match for n-1 times
+            for(int i=1; i< count; i++)
+            {
+                bestMatchTwo();
+            }
+            // the last image in the queue is the best result
+            Form1.finalImages.Add(Form1.sourceImages.Last());
         }
     }
 }
