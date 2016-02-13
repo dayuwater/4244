@@ -294,17 +294,22 @@ namespace TornRepair2
                 Console.WriteLine(centroid2.ToString()); // correct until this point
 
                 // The tweaking is messing up with the result, I will just ignore this for a moment
-                for (int i = 0; i < 1; i++)
+                // the tweaking now works for 1-button matching
+                // but the algorithm runs extremely slow ( still way faster than gluing the pieces :)
+                for (int i = -2; i < 3; i++)
                 {
-                    for (int j = 0; j < 1; j++)
+                    for (int j = -2; j < 3; j++)
                     {
+                        
                         ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
-                        if (result.overlap < minOverlap)
+                        if (result.overlap < minOverlap&&result.overlap!=0) // if the overlap is 0, that means the transformation is failed
                         {
                             bestResult = result;
                             minOverlap = result.overlap;
 
                         }
+                        //DisplayImage dip = new DisplayImage(result.img, new Point(0,0), new Point(i, j), (int)result.overlap);
+                       // dip.Show();
 
                     }
                 }

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
+// A large portion of the code is from ... written in C++
+// Paper is from Author....
+// 
 namespace TornRepair2
 {
     public static class DNAUtil
@@ -33,6 +35,7 @@ namespace TornRepair2
 
 
         // Partial Match Algorithm
+        // From Line XXX in X.cpp
         public static Match partialMatch(List<Phi> DNAseq1, List<Phi> DNAseq2)
         {
             bool flag = true; // ToDo: Compare the control points in contours between two parts
