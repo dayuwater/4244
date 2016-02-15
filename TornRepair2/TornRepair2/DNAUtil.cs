@@ -4,13 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// A large portion of the code is from ... written in C++
-// Paper is from Author....
-// 
+// The code in this class except my algorithm for matching using color feature is from a C++ code written by
+// Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India. 
+// http://aptnk.in/2008/08/automated-mosaicing-of-torn-paper-documents/ The file name is iConnect.cpp
+// Because the original code fails to detect the matching edge for straight edges, I added the color on the edge as another metric
+// for detecting matching edge
 namespace TornRepair2
 {
+    
     public static class DNAUtil
     {
+        // From Line 289-299
         public static List<Phi> replicateDNA(List<Phi> input)
         {
             List<Phi> linear = input.ToList();
@@ -35,7 +39,7 @@ namespace TornRepair2
 
 
         // Partial Match Algorithm
-        // From Line XXX in X.cpp
+        // From Line 368-438
         public static Match partialMatch(List<Phi> DNAseq1, List<Phi> DNAseq2)
         {
             bool flag = true; // ToDo: Compare the control points in contours between two parts
@@ -126,7 +130,9 @@ namespace TornRepair2
 
         }
 
-        // Partial Match Algorithm
+        // Partial Match Algorithm using color feature
+        // I used the framework for the partial matching algorithm using turning angle
+        // but using the differences of the color on the edge
         public static Match partialColorMatch(List<Phi> DNAseq1, List<Phi> DNAseq2)
         {
             bool flag = true; // ToDo: Compare the control points in contours between two parts
@@ -384,6 +390,9 @@ namespace TornRepair2
         }
 
         // TODO: try from 0 to 4, use edge map
+        // From Line 313-366
+        // this method is used to detect the portion on the matching edge that has similar turning angle difference
+        // the portion that has the largest length is the matching edge
         private static int histogram(List<int> diff, List<Phi> seq, ref int t_start, ref int t_end, int delta_theta = 5)
         {
             int max_theta, min_theta;
@@ -458,6 +467,8 @@ namespace TornRepair2
         // i=0 p1-p0=1 -> p2-p0 =4 , initial = x[2]=4
         // i=2 p3-p2=1 -> p4-p2= 4, initial=x[4]=8
         // count =2
+        // From Line 264-278
+        
         private static int changes(List<int> X)
         {
             if (X.Count == 0)
@@ -476,6 +487,8 @@ namespace TornRepair2
             return count;
         }
 
+        // From Line 301-311
+        // calculate the min and max element in a list 
         private static void extreme(List<int> input, out int min, out int max)
         {
             max = input[0];

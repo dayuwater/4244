@@ -193,6 +193,7 @@ namespace TornRepair2
 
 
         //http://www.cnblogs.com/liuxinls/p/3365276.html
+        // convert the information in a bitmap image to bytes
         public static byte[] Bitmap2Byte(Bitmap bitmap)
         {
             using (MemoryStream stream = new MemoryStream())

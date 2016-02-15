@@ -8,6 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// The code for extracting the contour map and the turning angle of each vertex on the map is from a C++ code written by
+// Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India.
+// http://aptnk.in/2008/08/automated-mosaicing-of-torn-paper-documents/
+// Because the original code fails to detect the matching edge for straight edges, I added the color on the edge as another metric
+// for detecting matching edge
+
 namespace TornRepair2
 {
     public class ColorfulContourMap
@@ -22,6 +28,8 @@ namespace TornRepair2
         public bool matched = false;
 
         // static factory methods
+        // getting the contour with the max area in a picture
+        // the extraction algorithm is from the C++ code Line 440-534
         public static ColorfulContourMap getMaxContourMap(Image<Bgr, byte> input,int index)
         {
             ColorfulContourMap result = new ColorfulContourMap();
@@ -69,7 +77,8 @@ namespace TornRepair2
         }
 
         
-        // get all of the valid contour maps, valid means circumfence > 10 px
+        // get all of the valid contour maps, valid means circumfence > 200 px
+        // this was not in their code, I added this feature, but I used their logic
         public static List<ColorfulContourMap> getAllContourMap(Image<Bgr, byte> input, int index)
         {
             // use for all members
@@ -255,7 +264,7 @@ namespace TornRepair2
             return -1;
         }
 
-        // transformations, plan to inherit in base class but have some technical difficulties for now
+       
         // translate
         public void Translate(int x, int y)
         {
@@ -374,6 +383,7 @@ namespace TornRepair2
         }
 
         // extract this contour map into DNA, the feature map
+        // used their C++ code for this method, Line 535-581
         public List<Phi> extractDNA()
         {
             List<Phi> DNA = new List<Phi>(); // DNA for poly 

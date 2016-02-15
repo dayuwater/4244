@@ -213,6 +213,10 @@ namespace TornRepair2
             List<MatchMetricData> matchMetricData = new List<MatchMetricData>();
 
             // search for all unmatched pairs, calculate the confidence level 
+            // if the max confidence level is 0, that means the remaining pieces cannot be matched by turning angle
+            // for this case, use the color matching algorithm
+            
+            
             foreach (ColorfulContourMap cmap in Form1.contourMaps)
             {
                 if (cmap.matched == false)
@@ -234,6 +238,9 @@ namespace TornRepair2
                     }
                 }
             }
+            // if there are no pieces eligible for edge matching, the metric data should be empty
+            // at this time, calculate the metrics for color matching
+
             matchMetricData = matchMetricData.Where(o => o.confident > 80).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
@@ -302,14 +309,14 @@ namespace TornRepair2
                     {
                         
                         ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
-                        if (result.overlap < minOverlap&&result.overlap!=0) // if the overlap is 0, that means the transformation is failed
+                        if (result.overlap < minOverlap&&result.success) // if the overlap is 0, that means the transformation is failed
                         {
                             bestResult = result;
                             minOverlap = result.overlap;
 
                         }
                         //DisplayImage dip = new DisplayImage(result.img, new Point(0,0), new Point(i, j), (int)result.overlap);
-                       // dip.Show();
+                        //dip.Show();
 
                     }
                 }

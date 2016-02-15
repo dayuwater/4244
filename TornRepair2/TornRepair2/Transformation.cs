@@ -9,12 +9,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+// The code in this class  is from a C++ code written by
+// Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India. 
+// http://aptnk.in/2008/08/automated-mosaicing-of-torn-paper-documents/ The file name is iConnect.cpp
+// Because the original code fails to detect the matching edge for straight edges, I added the color on the edge as another metric
+// for detecting matching edge
+
+
 namespace TornRepair2
 {
+    // this class provides all the methods used in image transformation
+    // most of the code comes from Line 67-240 in their code
+    // the only exception is the data structure for returned result
+    // I created the data structure because of the language differences between C# and C++
     public static class Transformation
     {
         //Compute desired trasformation matrix, rotate the fragment around the centroid for a certain angle
         // Since this works fine, centeroid calculated in this function should be correct
+        // From Line 101-127
         public static void transformation(List<Phi> DNAseq1, List<Phi> DNAseq2, ref Match segment,
                        ref Point centroid1, ref Point centroid2, ref double angle)
         {
@@ -72,7 +84,8 @@ namespace TornRepair2
             Console.WriteLine(String.Format("Center2:({0},{1})", centroid2.X, centroid2.Y));
             Console.WriteLine("Turning Angle:" + angle);
         }
-
+        // determine how the image will transform
+        // From Line 68-80
         public static int quadrant(Point p)
         {
             if (p.X >= 0 && p.Y >= 0)
@@ -96,6 +109,7 @@ namespace TornRepair2
 
 
         //Transform images according to transform matrix
+        // From Line 130-239
         public static ReturnImg transform(Image<Gray, Byte> img1, Image<Gray, Byte> mask1, Image<Gray, Byte> img2, Image<Gray, Byte> mask2,
             Image<Gray, Byte> dst, Image<Gray, Byte> dst_mask,
                        Point centroid1, Point centroid2, double angle)
@@ -288,7 +302,8 @@ namespace TornRepair2
                 return img;
             }
         }
-
+        // used for transformation of color matched pieces
+        // used the framework of the transformation of edge matched pieces
         public static ReturnColorImg transformColor(Image<Bgr, Byte> img1, Image<Bgr, Byte> mask1, Image<Bgr, Byte> img2, Image<Bgr, Byte> mask2,
            Image<Bgr, Byte> dst, Image<Bgr, Byte> dst_mask,
                       Point centroid1, Point centroid2, double angle,Point tweak1, Point tweak2)

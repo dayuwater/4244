@@ -7,8 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// The code for some of the data structure below is from a C++ code written by
+// Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India.
+// http://aptnk.in/2008/08/automated-mosaicing-of-torn-paper-documents/
+// Because the original code fails to detect the matching edge for straight edges, I added the color on the edge as another metric
+// for detecting matching edge
+
 namespace TornRepair2
 {
+    // used to represent the color on a point
     public struct ColorfulPoint
     {
         public int X;
@@ -17,7 +24,8 @@ namespace TornRepair2
 
 
     }
-
+    // from their phi data structure (Line 53-57), used to represent the turning angle on a point of a matching edge
+    // but the edge color is not from their code, it is used in my own color matching algorithm
     public struct Phi
     {
         public double x; // x position
@@ -26,7 +34,8 @@ namespace TornRepair2
         public int l; // arc length
         public Bgr color; // edge color
     }
-
+    // from their match data structure (Line 59-65), used to represent the attributes of a matching edge
+    // the ToString() method is not in their code, it is used for my own debugging purpose
     public struct Match
     {
         //Match parameters
@@ -45,7 +54,8 @@ namespace TornRepair2
         }
 
     }
-
+    
+    [Obsolete]
     public struct ReturnImg
     {
         public Image<Gray, byte> img;
@@ -62,7 +72,7 @@ namespace TornRepair2
         public Point translate2; // t2
         public double overlap;
     }
-
+    // The data structure for the result of a 2-piece match
     public struct ReturnColorImg
     {
         public Image<Bgr, byte> img;
@@ -80,7 +90,7 @@ namespace TornRepair2
         public double overlap;
         public bool success;
     }
-
+    // used for matching history
     public struct MatchHistoryData
     {
         public Image<Bgr, byte> img1;
@@ -88,7 +98,7 @@ namespace TornRepair2
         public double confident;
         public double overlap;
     }
-
+    // used for the metrics for matching
     public struct MatchMetricData
     {
         public ColorfulContourMap map1;
