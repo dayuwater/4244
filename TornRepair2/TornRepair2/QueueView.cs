@@ -196,6 +196,16 @@ namespace TornRepair2
 
         }
 
+        // algorithm plot:
+        // 1. Try edge match
+        //      Find max confidence
+        //      Try put them together
+        // 2. Try color match
+        //      Find max confidence
+        //      Try put them together
+        // 3. If still fail, that is from other page
+        // 4. If success, find the best tweak
+        // 5. Join the images according to the final parameters
         private void bestMatchTwo()
         {
             double maxConfidence = 0.0;
@@ -216,7 +226,8 @@ namespace TornRepair2
             // if the max confidence level is 0, that means the remaining pieces cannot be matched by turning angle
             // for this case, use the color matching algorithm
             
-            
+
+            // get the potential matching edges
             foreach (ColorfulContourMap cmap in Form1.contourMaps)
             {
                 if (cmap.matched == false)
@@ -238,9 +249,39 @@ namespace TornRepair2
                     }
                 }
             }
-            // if there are no pieces eligible for edge matching, the metric data should be empty
+            // if there are no pieces eligible for edge matching, the metric data should have all elements with confidence level 0
             // at this time, calculate the metrics for color matching
+            // Double-thresholding algorithm works for color matching too
+            if (matchMetricData.Count==0||matchMetricData.OrderBy(o=>o.confident).Last().confident==0)
+            {
+                foreach (ColorfulContourMap cmap in Form1.contourMaps)
+                {
+                    if (cmap.matched == false)
+                    {
+                        foreach (ColorfulContourMap cmap2 in Form1.contourMaps)
+                        {
+                            if (cmap2.matched == false && cmap != cmap2)
+                            {
+                                Match match = DNAUtil.partialColorMatch(cmap.extractDNA(), cmap2.extractDNA());
+                                double confidence = match.confidence;
+                                matchMetricData.Add(new MatchMetricData { map1 = cmap, map2 = cmap2, confident = confidence, dna1 = cmap.extractDNA(), dna2 = cmap2.extractDNA(), match = match });
+                                if (confidence > maxConfidence)
+                                {
+                                    maxConfidence = confidence;
+                                    map1 = cmap;
+                                    map2 = cmap2;
+                                }
+                            }
+                        }
+                    }
+                }
 
+            }
+
+            // if there are still no matches, the process is done
+            // It will consider the rest of the pieces from another page
+
+            // 1st funnel: select the most potential matching edges
             matchMetricData = matchMetricData.Where(o => o.confident > 80).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
@@ -273,6 +314,7 @@ namespace TornRepair2
             }
             MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
             // the pair with highest confidence with a valid intersection is the best
+            // 2nd funnel: select only the matches that can actually match the picture together
             if (MinOverlap.overlap < Constants.THRESHOLD)
             {
                 Console.WriteLine("Map1 " + MinOverlap.map1.imageIndex);
@@ -294,6 +336,8 @@ namespace TornRepair2
                 Image<Bgr, byte> mask2 = pic2.Clone();
                 Image<Bgr, byte> joined = pic1.Clone();
                 Image<Bgr, byte> joined_mask = joined.Clone();
+
+
                 // tweak
                 ReturnColorImg bestResult = new ReturnColorImg();
                 double minOverlap = 999999;

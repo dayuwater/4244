@@ -110,6 +110,7 @@ namespace TornRepair2
 
         //Transform images according to transform matrix
         // From Line 130-239
+        [Obsolete]
         public static ReturnImg transform(Image<Gray, Byte> img1, Image<Gray, Byte> mask1, Image<Gray, Byte> img2, Image<Gray, Byte> mask2,
             Image<Gray, Byte> dst, Image<Gray, Byte> dst_mask,
                        Point centroid1, Point centroid2, double angle)
