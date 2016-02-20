@@ -123,6 +123,11 @@ namespace TornRepair2
             segment.y22 = (int)DNAseq2[segment.t22].y;
             if (best == 0)
                 segment.confidence = 0;
+            else if (segment.t11 > segment.t12)
+                segment.confidence = 0; // if the first segment run over the origin, reject the match
+
+            else if (segment.t21 > segment.t22)
+                segment.confidence = 0; // if the second segment run over the origin, reject the match
             else
                 segment.confidence = Math.Sqrt((double)(length * length) / best);
 

@@ -206,8 +206,11 @@ namespace TornRepair2
         // 3. If still fail, that is from other page
         // 4. If success, find the best tweak
         // 5. Join the images according to the final parameters
-        private void bestMatchTwo()
+
+        // the return value is how many pages should be in the original images
+        private int bestMatchTwo()
         {
+            int pageCount = 0;
             double maxConfidence = 0.0;
             ColorfulContourMap map1 = new ColorfulContourMap();
             ColorfulContourMap map2 = new ColorfulContourMap();
@@ -282,7 +285,7 @@ namespace TornRepair2
             // It will consider the rest of the pieces from another page
 
             // 1st funnel: select the most potential matching edges
-            matchMetricData = matchMetricData.Where(o => o.confident > 80).OrderBy(o => o.confident).Reverse().ToList();
+            matchMetricData = matchMetricData.Where(o => o.confident > 60).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
             Console.WriteLine(map2.imageIndex);
@@ -311,6 +314,11 @@ namespace TornRepair2
                 data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap, dna1 = m.dna1, dna2 = m.dna2, match = m.match });
 
 
+            }
+            if (data2.Count == 0)
+            {
+                MessageBox.Show("No match found");
+                return 1; // temporary code, just to let the program run
             }
             MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
             // the pair with highest confidence with a valid intersection is the best
@@ -373,12 +381,15 @@ namespace TornRepair2
 
                 refresh();
                 MessageBox.Show("Best Match Found.");
+                return 0;
 
             }
             else
             {
                 Console.WriteLine("Failed");
+                return 1;
             }
+           
 
         }
 
@@ -395,13 +406,18 @@ namespace TornRepair2
 
             // get the image count
             int count = Form1.sourceImages.Count;
+            int pageCount = 1;
             // best match for n-1 times
             for(int i=1; i< count; i++)
             {
-                bestMatchTwo();
+                pageCount+=bestMatchTwo();
             }
-            // the last image in the queue is the best result
-            Form1.finalImages.Add(Form1.sourceImages.Last());
+            MessageBox.Show(pageCount.ToString());
+            
+
+            // try to put multiple results into the output manager if the source image parts is from multiple pages
+            Form1.finalImages.AddRange(Form1.sourceImages.GetRange(Form1.sourceImages.Count-pageCount,pageCount));
+
         }
     }
 }
