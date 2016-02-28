@@ -166,33 +166,84 @@ namespace TornRepair2
             }
             List<int> zc = new List<int>();
             List<int> starts = new List<int>();
+            int iteration = 0;
             for (int shift = 0; shift < seq1.Count - seq2.Count; shift +=Constants.STEP)
             {
+               
                 List<int> diff = new List<int>();
                 bool flag1 = false;
                 int start = 0, end = 0;
                 // TODO: change the differences into color difference (done)
+                List<int> zeroCounts=new List<int>() ;
                 int zeroCount = 0;
+                List<int> starts2 = new List<int>();
+                // TODO: need to add a tolerance level for some random non 0 differences
+                int tolerCount = 0; // tolerance count for random non 0s.
                 for (int i = 0; i < seq2.Count; ++i)
                 {
                     int difference = Metrics.colorDifference(seq1[i + shift].color, seq2[i].color);
+                    // if difference==0, flag
+                    // if difference!=0, unflag
                     if (difference == 0)
                     {
+                        // if it is in unflag state, mark the point as starting point
                         if (!flag1)
                         {
                             flag1 = true;
                             start = i;
-                            starts.Add(start);
+                            //starts.Add(start);
+                            starts2.Add(start);
                         }
+                        // count the number of zero difference points in this section
                         zeroCount++;
+                        tolerCount = 0;
                     }
+                    else
+                    {
+                        if (tolerCount <= Constants.COLOR_TOLERANCE)
+                        {
+                            if (flag1)
+                            {
+                                zeroCount++;
+                                tolerCount++;
+                            }
+                        }
+                        else
+                        {
+                            if (flag1)
+                            {
+                                zeroCounts.Add(zeroCount); // add to a upper level storage
+                                zeroCount = 0; // reset the counter
+                                flag1 = false; // unflag
+                                tolerCount = 0;
+                            }
+                        }
+                    }
+
+
                     diff.Add(difference);
                 }
-                zc.Add(zeroCount);
-                if (zeroCount == 0)
+                if (iteration == 33)
+                {
+                    Console.WriteLine("33");
+                }
+                if (zeroCounts.Count == 0)
                 {
                     starts.Add(-1);
                 }
+                else
+                {
+                    starts.Add(starts2[zeroCounts.IndexOf(zeroCounts.Max())]);
+                }
+                if (zeroCounts.Count == 0)
+                {
+                    zc.Add(0);
+                }
+                else
+                {
+                    zc.Add(zeroCounts.Max());
+                }
+               
                 // TTODO: implement a histogram algorithm for color match
                 //max_match = colorHistogram(diff, seq2, ref start, ref end, Util.DELTA_THETA);
                 max_match = 0;
@@ -229,6 +280,7 @@ namespace TornRepair2
                          segment.t22 = t_end;
                      }
                  } */
+                iteration++;
             }
 
             Console.WriteLine("Max:" + zc.Max());
