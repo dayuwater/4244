@@ -311,18 +311,19 @@ namespace TornRepair2
                 Image<Bgr, byte> joined = pic1.Clone();
                 Image<Bgr, byte> joined_mask = joined.Clone();
                 ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(0, 0));
-                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap, dna1 = m.dna1, dna2 = m.dna2, match = m.match });
-
+                data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap, dna1 = m.dna1, dna2 = m.dna2, match = m.match,confident=m.confident });
+                
 
             }
             if (data2.Count == 0)
             {
                 MessageBox.Show("No match found");
-                return 1; // temporary code, just to let the program run
+                return 1; // add 1 to full image found count
             }
-            MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
             // the pair with highest confidence with a valid intersection is the best
             // 2nd funnel: select only the matches that can actually match the picture together
+            MatchMetricData MinOverlap = data2.OrderBy(o => o.overlap).First();
+          
             if (MinOverlap.overlap < Constants.THRESHOLD)
             {
                 Console.WriteLine("Map1 " + MinOverlap.map1.imageIndex);

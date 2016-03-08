@@ -284,6 +284,10 @@ namespace TornRepair2
             }
 
             Console.WriteLine("Max:" + zc.Max());
+            if (zc.Max() == 0)
+            {
+                goto a;
+            }
             int t_shift = 0;
             int s_start = 0;
             for (int i = 0; i < zc.Count; i++)
@@ -425,7 +429,7 @@ namespace TornRepair2
             // fine code below
 
 
-            segment.x11 = (int)DNAseq1[segment.t11].x;
+            a: segment.x11 = (int)DNAseq1[segment.t11].x;
             segment.y11 = (int)DNAseq1[segment.t11].y;
             segment.x12 = (int)DNAseq1[segment.t12].x;
             segment.y12 = (int)DNAseq1[segment.t12].y;
