@@ -283,7 +283,7 @@ namespace TornRepair2
             Console.WriteLine(angle);
             mask1 = pic1.Clone();
             mask2 = pic2.Clone();
-            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle+180,p1Tweak,p2Tweak);
+            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle+180,p1Tweak,p2Tweak,Form1.BKG_WHITE);
             joined = result.img;
             //pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
             confidence = edgeMatch.confidence;

@@ -67,10 +67,25 @@ namespace TornRepair2
                 int index = 0;
                 foreach (Image<Bgr, byte> image in Form1.sourceImages)
                 {
-
-                    List<ColorfulContourMap> cmap = ColorfulContourMap.getAllContourMap(image, index);
+                    List<ColorfulContourMap> cmap;
+                    if (blackSelect.Checked == true)
+                    {
+                        cmap = ColorfulContourMap.getAllContourMap(image, index, 0);
+                    }
+                    else
+                    {
+                        cmap = ColorfulContourMap.getAllContourMap(image, index, 1);
+                    }
                     Form1.contourMaps.AddRange(cmap);
                     index++;
+                }
+                if (blackSelect.Checked)
+                {
+                    Form1.BKG_WHITE = true;
+                }
+                else
+                {
+                    Form1.BKG_WHITE = false;
                 }
 
                 Hide();

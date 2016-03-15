@@ -27,6 +27,8 @@ namespace TornRepair2
         public static Image<Bgr, byte> coverImage=new Image<Bgr, byte>(640,480);
         public static List<MatchHistoryData> matchHistory = new List<MatchHistoryData>();
 
+        public static bool BKG_WHITE = true; // if the background is white, this is true, if the background is black, this is false
+
 
 
 

@@ -305,9 +305,10 @@ namespace TornRepair2
         }
         // used for transformation of color matched pieces
         // used the framework of the transformation of edge matched pieces
+        // mode=0, white background, mode=1, black background
         public static ReturnColorImg transformColor(Image<Bgr, Byte> img1, Image<Bgr, Byte> mask1, Image<Bgr, Byte> img2, Image<Bgr, Byte> mask2,
            Image<Bgr, Byte> dst, Image<Bgr, Byte> dst_mask,
-                      Point centroid1, Point centroid2, double angle,Point tweak1, Point tweak2)
+                      Point centroid1, Point centroid2, double angle,Point tweak1, Point tweak2, bool mode=true)
         {
             Image<Bgr, Byte> E = img2.Clone();
             Image<Bgr, Byte> E_mask = mask2.Clone();//Don't ruin original images
@@ -410,7 +411,15 @@ namespace TornRepair2
                 cvSet(dst, cvScalar(255));//make it white
             else
                 cvSet(dst, cvScalar(0));//make it black*/
-            dst.SetValue(255);
+            if (mode)
+            {
+                dst.SetValue(255); // white background=255, black background=0
+            }
+            else
+            {
+                dst.SetValue(0); // white background=255, black background=0
+            }
+           
             dst_mask.SetZero();
 
             //Direct access wrappers
@@ -432,27 +441,59 @@ namespace TornRepair2
             {
                 for (int j = 0; j < img1.Width; ++j)
                 {
-                    if (mask1.Data[i, j, 0] != 255)
+                    // if black background
+                    if (mode)
                     {
-                        int i_new = i + t1.Y;
-                        int j_new = j + t1.X;
-                        try {
-                            dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
-                            dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
-                            dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
-                            dst_mask.Data[i_new, j_new, 0] = 255;
-                            dst_mask.Data[i_new, j_new, 1] = 255;
-                            dst_mask.Data[i_new, j_new, 2] = 255;
-                        }
-                        catch
+                        if (mask1.Data[i, j, 0] != 255)
                         {
-                            //MessageBox.Show("You cannot tweak in that direction further");
-                            success = false;
-                            goto ret;
-                            
+                            int i_new = i + t1.Y;
+                            int j_new = j + t1.X;
+                            try
+                            {
+                                dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
+                                dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
+                                dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
+                                dst_mask.Data[i_new, j_new, 0] = 255;
+                                dst_mask.Data[i_new, j_new, 1] = 255;
+                                dst_mask.Data[i_new, j_new, 2] = 255;
+                            }
+                            catch
+                            {
+                                //MessageBox.Show("You cannot tweak in that direction further");
+                                success = false;
+                                goto ret;
+
+                            }
+
                         }
-                        
                     }
+                    // if white background
+                    else
+                    {
+                        if (mask1.Data[i, j, 0] != 0)
+                        {
+                            int i_new = i + t1.Y;
+                            int j_new = j + t1.X;
+                            try
+                            {
+                                dst.Data[i_new, j_new, 0] = img1.Data[i, j, 0];
+                                dst.Data[i_new, j_new, 1] = img1.Data[i, j, 1];
+                                dst.Data[i_new, j_new, 2] = img1.Data[i, j, 2];
+                                dst_mask.Data[i_new, j_new, 0] = 0;
+                                dst_mask.Data[i_new, j_new, 1] = 0;
+                                dst_mask.Data[i_new, j_new, 2] = 0;
+                            }
+                            catch
+                            {
+                                //MessageBox.Show("You cannot tweak in that direction further");
+                                success = false;
+                                goto ret;
+
+                            }
+
+                        }
+                    }
+                    
                 }
             }
 
@@ -462,33 +503,71 @@ namespace TornRepair2
             {
                 for (int j = 0; j < img2.Width; ++j)
                 {
-                    if (E_mask.Data[i, j, 0] != 255)
+                    // if black background
+                    if (mode)
                     {
-                        int i_new = i + t2.Y;
-                        int j_new = j + t2.X;
-                        try {
-                            if (dst_mask.Data[i_new, j_new, 0] != 0)
-                            {
-                                intersections++;
-                            }
-                            else
-                            {
-                                dst.Data[i_new, j_new, 0] = E.Data[i, j, 0];
-                                dst.Data[i_new, j_new, 1] = E.Data[i, j, 1];
-                                dst.Data[i_new, j_new, 2] = E.Data[i, j, 2];
-                                dst_mask.Data[i_new, j_new, 0] = 255;
-                                dst_mask.Data[i_new, j_new, 1] = 255;
-                                dst_mask.Data[i_new, j_new, 2] = 255;
-                            }
-                        }
-                        catch
+                        if (E_mask.Data[i, j, 0] != 255)
                         {
-                            //MessageBox.Show("You cannot tweak in that direction further");
-                            success = false;
-                            goto ret;
-                        }
+                            int i_new = i + t2.Y;
+                            int j_new = j + t2.X;
+                            try
+                            {
+                                if (dst_mask.Data[i_new, j_new, 0] != 0)
+                                {
+                                    intersections++;
+                                }
+                                else
+                                {
+                                    dst.Data[i_new, j_new, 0] = E.Data[i, j, 0];
+                                    dst.Data[i_new, j_new, 1] = E.Data[i, j, 1];
+                                    dst.Data[i_new, j_new, 2] = E.Data[i, j, 2];
+                                    dst_mask.Data[i_new, j_new, 0] = 255;
+                                    dst_mask.Data[i_new, j_new, 1] = 255;
+                                    dst_mask.Data[i_new, j_new, 2] = 255;
+                                }
+                            }
+                            catch
+                            {
+                                //MessageBox.Show("You cannot tweak in that direction further");
+                                success = false;
+                                goto ret;
+                            }
 
-                       
+
+                        }
+                    }
+                    // else if white background
+                    else
+                    {
+                        if (E_mask.Data[i, j, 0] != 0)
+                        {
+                            int i_new = i + t2.Y;
+                            int j_new = j + t2.X;
+                            try
+                            {
+                                if (dst_mask.Data[i_new, j_new, 0] != 0)
+                                {
+                                    intersections++;
+                                }
+                                else
+                                {
+                                    dst.Data[i_new, j_new, 0] = E.Data[i, j, 0];
+                                    dst.Data[i_new, j_new, 1] = E.Data[i, j, 1];
+                                    dst.Data[i_new, j_new, 2] = E.Data[i, j, 2];
+                                    dst_mask.Data[i_new, j_new, 0] = 0;
+                                    dst_mask.Data[i_new, j_new, 1] = 0;
+                                    dst_mask.Data[i_new, j_new, 2] = 0;
+                                }
+                            }
+                            catch
+                            {
+                                //MessageBox.Show("You cannot tweak in that direction further");
+                                success = false;
+                                goto ret;
+                            }
+
+
+                        }
                     }
                 }
             }

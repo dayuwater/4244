@@ -37,7 +37,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.imageCountDisplay = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.blackSelect = new System.Windows.Forms.RadioButton();
+            this.whiteSelect = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -100,7 +104,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(984, 315);
+            this.label1.Location = new System.Drawing.Point(1009, 354);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(139, 25);
             this.label1.TabIndex = 5;
@@ -109,7 +113,7 @@
             // imageCountDisplay
             // 
             this.imageCountDisplay.AutoSize = true;
-            this.imageCountDisplay.Location = new System.Drawing.Point(1156, 315);
+            this.imageCountDisplay.Location = new System.Drawing.Point(1270, 354);
             this.imageCountDisplay.Name = "imageCountDisplay";
             this.imageCountDisplay.Size = new System.Drawing.Size(24, 25);
             this.imageCountDisplay.TabIndex = 6;
@@ -125,11 +129,45 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.whiteSelect);
+            this.groupBox1.Controls.Add(this.blackSelect);
+            this.groupBox1.Location = new System.Drawing.Point(1008, 235);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(286, 100);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "groupBox1";
+            // 
+            // blackSelect
+            // 
+            this.blackSelect.AutoSize = true;
+            this.blackSelect.Checked = true;
+            this.blackSelect.Location = new System.Drawing.Point(19, 30);
+            this.blackSelect.Name = "blackSelect";
+            this.blackSelect.Size = new System.Drawing.Size(96, 29);
+            this.blackSelect.TabIndex = 0;
+            this.blackSelect.TabStop = true;
+            this.blackSelect.Text = "Black";
+            this.blackSelect.UseVisualStyleBackColor = true;
+            // 
+            // whiteSelect
+            // 
+            this.whiteSelect.AutoSize = true;
+            this.whiteSelect.Location = new System.Drawing.Point(19, 65);
+            this.whiteSelect.Name = "whiteSelect";
+            this.whiteSelect.Size = new System.Drawing.Size(98, 29);
+            this.whiteSelect.TabIndex = 1;
+            this.whiteSelect.Text = "White";
+            this.whiteSelect.UseVisualStyleBackColor = true;
+            // 
             // TornPieceInput
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1352, 797);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.imageCountDisplay);
             this.Controls.Add(this.label1);
@@ -143,6 +181,8 @@
             this.Activated += new System.EventHandler(this.TornPieceInput_Activated);
             this.Enter += new System.EventHandler(this.TornPieceInput_Enter);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -159,5 +199,8 @@
         private System.Windows.Forms.Label imageCountDisplay;
         private System.Windows.Forms.DataGridViewImageColumn Image;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton whiteSelect;
+        private System.Windows.Forms.RadioButton blackSelect;
     }
 }

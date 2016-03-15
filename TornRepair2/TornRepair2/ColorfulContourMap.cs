@@ -79,12 +79,23 @@ namespace TornRepair2
         
         // get all of the valid contour maps, valid means circumfence > 200 px
         // this was not in their code, I added this feature, but I used their logic
-        public static List<ColorfulContourMap> getAllContourMap(Image<Bgr, byte> input, int index)
+        public static List<ColorfulContourMap> getAllContourMap(Image<Bgr, byte> input, int index, int mode=0)
         {
             // use for all members
             List<ColorfulContourMap> result = new List<ColorfulContourMap>();
             Image<Gray, byte> gray = input.Convert<Gray, byte>();
-            gray = gray.SmoothGaussian(3).ThresholdBinaryInv(new Gray(245), new Gray(255)).MorphologyEx(null, CV_MORPH_OP.CV_MOP_CLOSE, 2);
+            // use for black background
+            if (mode == 0)
+            {
+                gray = gray.SmoothGaussian(3).ThresholdBinaryInv(new Gray(245), new Gray(255)).MorphologyEx(null, CV_MORPH_OP.CV_MOP_CLOSE, 2);
+            }
+            // use for white background
+            else
+            {
+                gray = gray.SmoothGaussian(3).ThresholdBinary(new Gray(100), new Gray(255)).MorphologyEx(null, CV_MORPH_OP.CV_MOP_CLOSE, 2);
+            }
+                
+
             // one time use
             List<Point> pointList = new List<Point>();
             List<Point> polyPointList = new List<Point>();

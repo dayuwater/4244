@@ -310,7 +310,7 @@ namespace TornRepair2
                 Image<Bgr, byte> mask2 = pic2.Clone();
                 Image<Bgr, byte> joined = pic1.Clone();
                 Image<Bgr, byte> joined_mask = joined.Clone();
-                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(0, 0));
+                ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(0, 0),Form1.BKG_WHITE);
                 data2.Add(new MatchMetricData { map1 = m.map1, map2 = m.map2, overlap = result.overlap, dna1 = m.dna1, dna2 = m.dna2, match = m.match,confident=m.confident });
                 
 
@@ -361,7 +361,7 @@ namespace TornRepair2
                     for (int j = -2; j < 3; j++)
                     {
                         
-                        ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
+                        ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j),Form1.BKG_WHITE);
                         if (result.overlap < minOverlap&&result.success) // if the overlap is 0, that means the transformation is failed
                         {
                             bestResult = result;
