@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Emgu.CV;
+using System.Drawing;
 
 // The code in this class except my algorithm for matching using color feature is from a C++ code written by
 // Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India. 
@@ -12,8 +14,9 @@ using System.Threading.Tasks;
 namespace TornRepair2
 {
     
-    public static class DNAUtil
+    public class DNAUtil
     {
+       
         // From Line 289-299
         public static List<Phi> replicateDNA(List<Phi> input)
         {
@@ -184,7 +187,7 @@ namespace TornRepair2
                     int difference = Metrics.colorDifference(seq1[i + shift].color, seq2[i].color);
                     // if difference==0, flag
                     // if difference!=0, unflag
-                    if (difference == 0)
+                    if (difference <= 0)
                     {
                         // if it is in unflag state, mark the point as starting point
                         if (!flag1)
@@ -446,6 +449,165 @@ namespace TornRepair2
                 segment.confidence = Math.Sqrt((double)(length * length) / best); */
             segment.confidence = length;
             Console.WriteLine(segment.ToString());
+            // all the code above is the matching segment without considering edge feature
+            // we need to consider edge feature at this point
+            // and cull out the matching edge that does not match
+
+            // consider the most simple case: straight line without rotating
+            // then to edges with turning angles but still without rotating
+            // then to general case
+
+            // Step 1: extract the portion of DNA that forms the matching edge (done)
+            List<Phi> edge1=new List<Phi>(); // valid edge in image 1 
+            List<Phi> edge2=new List<Phi>(); // valid edge in image 2
+            for(int i=Math.Min(segment.t11,segment.t12); i<Math.Max(segment.t11,segment.t12); i++)
+            {
+                edge1.Add(DNAseq1[i]);
+            }
+            for (int i = Math.Min(segment.t21,segment.t22); i < Math.Max(segment.t21,segment.t22); i++)
+            {
+                edge2.Add(DNAseq2[i]);
+            }
+
+            // Step 2: Analyze the edge feature
+
+            // convert edge into contour
+            Contour<Point> c1;
+            Contour<Point> c2;
+            List<Point> pedge1;
+            List<Point> pedge2;
+
+           
+                c1 = new Contour<Point>(Form1.mem);
+                foreach(Phi p in edge1)
+                {
+                    c1.Push(new Point((int)p.x, (int)p.y));
+                }
+               // stor.Dispose();
+                c1 = c1.ApproxPoly(2.0,Form1.mem);
+                pedge1 = c1.ToList();
+
+
+            
+            
+           
+           
+                c2 = new Contour<Point>(Form1.mem);
+                foreach (Phi p in edge2)
+                {
+                    c2.Push(new Point((int)p.x, (int)p.y));
+                }
+               
+
+
+            
+            c2 = c2.ApproxPoly(2.0);
+            pedge2 = c2.ToList();
+
+
+
+
+
+
+
+
+            // Step 3: Cull the edge
+            // calculate the turning angle for each edge
+
+            // if the cumulative turning angle change is greater than 90, restart
+
+            // use a brute force longest straight line approach first, this solves a lot of cases
+            int maxDistance = -99999;
+            int pos1=0, pos2=0;
+            for(int i=0; i < pedge1.Count-1; i++)
+            {
+                if (pedge1[i+1].X == pedge1[i].X)
+                {
+                    if (Math.Abs(pedge1[i + 1].Y - pedge1[i].Y) > maxDistance)
+                    {
+                        maxDistance = Math.Abs(pedge1[i+1].Y - pedge1[i].Y);
+                        pos1 = i;
+                    }
+                }
+                else if (pedge1[i + 1].Y == pedge1[i].Y)
+                {
+                    if (Math.Abs(pedge1[i + 1].X - pedge1[i].X) > maxDistance)
+                    {
+                        maxDistance = Math.Abs(pedge1[i+1].X - pedge1[i].X);
+                        pos1 = i;
+                    }
+                }
+            }
+            maxDistance = -99999;
+            for (int i = 0; i < pedge2.Count-1; i++)
+            {
+                if (pedge2[i + 1].X == pedge2[i].X)
+                {
+                    if (Math.Abs(pedge2[i + 1].Y - pedge2[i].Y) > maxDistance)
+                    {
+                        maxDistance = Math.Abs(pedge2[i+1].Y - pedge2[i].Y);
+                        pos2 = i;
+                    }
+                }
+                else if (pedge2[i + 1].Y == pedge2[i].Y)
+                {
+                    if (Math.Abs(pedge2[i + 1].X - pedge2[i].X) > maxDistance)
+                    {
+                        maxDistance = Math.Abs(pedge2[i+1].X - pedge2[i].X);
+                        pos2 = i;
+                    }
+                }
+            }
+
+            // now the new matching edge is calculated, send the result to output
+
+            for (int j = 0; j < DNAseq1.Count; j++)
+            {
+                if ((pedge1[pos1].X == DNAseq1[j].x) && (pedge1[pos1].Y == DNAseq1[j].y))
+                {
+                    segment.t11 = j;
+
+                }
+            }
+
+            for (int j = 0; j < DNAseq2.Count; j++)
+            {
+                if ((pedge2[pos2].X == DNAseq2[j].x) && (pedge2[pos2].Y == DNAseq2[j].y))
+                {
+                    segment.t21 = j;
+
+                }
+            }
+            for (int j = 0; j < DNAseq1.Count; j++)
+            {
+                if ((pedge1[pos1+1].X == DNAseq1[j].x) && (pedge1[pos1+1].Y == DNAseq1[j].y))
+                {
+                    segment.t12 = j;
+
+                }
+            }
+            for (int j = 0; j < DNAseq2.Count; j++)
+            {
+                if ((pedge2[pos2+1].X == DNAseq2[j].x) && (pedge2[pos2+1].Y == DNAseq2[j].y))
+                {
+                    segment.t22 = j;
+
+                }
+            }
+            segment.x11 = (int)DNAseq1[segment.t11].x;
+            segment.y11 = (int)DNAseq1[segment.t11].y;
+            segment.x12 = (int)DNAseq1[segment.t12].x;
+            segment.y12 = (int)DNAseq1[segment.t12].y;
+
+            segment.x21 = (int)DNAseq2[segment.t21].x;
+            segment.y21 = (int)DNAseq2[segment.t21].y;
+            segment.x22 = (int)DNAseq2[segment.t22].x;
+            segment.y22 = (int)DNAseq2[segment.t22].y;
+
+
+
+
+
             return segment;
 
         }

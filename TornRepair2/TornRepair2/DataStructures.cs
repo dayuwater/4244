@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace TornRepair2
 {
+  
     // used to represent the color on a point
     public struct ColorfulPoint
     {

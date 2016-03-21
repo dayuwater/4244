@@ -28,6 +28,7 @@ namespace TornRepair2
         public static List<MatchHistoryData> matchHistory = new List<MatchHistoryData>();
 
         public static bool BKG_WHITE = true; // if the background is white, this is true, if the background is black, this is false
+        public static MemStorage mem = new MemStorage();
 
 
 
