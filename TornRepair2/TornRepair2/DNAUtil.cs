@@ -5,8 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV;
 using System.Drawing;
-using Emgu.CV.Structure;
-using ColorMine.ColorSpaces.Comparisons;
 
 // The code in this class except my algorithm for matching using color feature is from a C++ code written by
 // Amiya Patanaik, Bibek Behera and Sukadeb Acharya - IIT Kharagpur - India. 
@@ -15,10 +13,10 @@ using ColorMine.ColorSpaces.Comparisons;
 // for detecting matching edge
 namespace TornRepair2
 {
-
+    
     public class DNAUtil
     {
-
+       
         // From Line 289-299
         public static List<Phi> replicateDNA(List<Phi> input)
         {
@@ -126,39 +124,7 @@ namespace TornRepair2
             segment.y21 = (int)DNAseq2[segment.t21].y;
             segment.x22 = (int)DNAseq2[segment.t22].x;
             segment.y22 = (int)DNAseq2[segment.t22].y;
-
-            // consider the color feature for rejection
-
-            // Step 1: extract the color on the edge into a list (done)
-            List<Bgr> colors1 = new List<Bgr>();
-            List<Bgr> colors2 = new List<Bgr>();
-            for (int i = segment.t11; i <= segment.t12; i++)
-            {
-                colors1.Add(DNAseq1[i].color);
-            }
-
-            for (int i = segment.t21; i <= segment.t22; i++)
-            {
-                colors2.Add(DNAseq2[i].color);
-            }
-
-
-            // Step 2: Calculate the total color difference
-            int totalColorDifference = 0;
-            for (int i = 0; i < Math.Min(colors1.Count, colors2.Count); i++)
-            {
-                totalColorDifference += Metrics.colorDifference(colors1[i], colors2[i]);
-            }
-
-            // Step 3: if the color difference is too great, reject
-            double avgColorDifference = totalColorDifference / (Math.Min(colors1.Count, colors2.Count));
-            if (avgColorDifference > Constants.EDGE_COLOR_DIFFERENCE)
-            {
-                segment.confidence = 0; // reject
-            }
-
-            // rejections for final inconsistent matches
-            else if (best == 0)
+            if (best == 0)
                 segment.confidence = 0;
             else if (segment.t11 > segment.t12)
                 segment.confidence = 0; // if the first segment run over the origin, reject the match
@@ -204,14 +170,14 @@ namespace TornRepair2
             List<int> zc = new List<int>();
             List<int> starts = new List<int>();
             int iteration = 0;
-            for (int shift = 0; shift < seq1.Count - seq2.Count; shift += Constants.STEP)
+            for (int shift = 0; shift < seq1.Count - seq2.Count; shift +=Constants.STEP)
             {
-
+               
                 List<int> diff = new List<int>();
                 bool flag1 = false;
                 int start = 0, end = 0;
                 // TODO: change the differences into color difference (done)
-                List<int> zeroCounts = new List<int>();
+                List<int> zeroCounts=new List<int>() ;
                 int zeroCount = 0;
                 List<int> starts2 = new List<int>();
                 // TODO: need to add a tolerance level for some random non 0 differences
@@ -280,7 +246,7 @@ namespace TornRepair2
                 {
                     zc.Add(zeroCounts.Max());
                 }
-
+               
                 // TTODO: implement a histogram algorithm for color match
                 //max_match = colorHistogram(diff, seq2, ref start, ref end, Util.DELTA_THETA);
                 max_match = 0;
@@ -492,19 +458,15 @@ namespace TornRepair2
             // then to general case
 
             // Step 1: extract the portion of DNA that forms the matching edge (done)
-            List<Phi> edge1 = new List<Phi>(); // valid edge in image 1 
-            List<Phi> edge2 = new List<Phi>(); // valid edge in image 2
-            for (int i = Math.Min(segment.t11, segment.t12); i < Math.Max(segment.t11, segment.t12); i++)
+            List<Phi> edge1=new List<Phi>(); // valid edge in image 1 
+            List<Phi> edge2=new List<Phi>(); // valid edge in image 2
+            for(int i=Math.Min(segment.t11,segment.t12); i<Math.Max(segment.t11,segment.t12); i++)
             {
                 edge1.Add(DNAseq1[i]);
             }
-            for (int i = Math.Min(segment.t21, segment.t22); i < Math.Max(segment.t21, segment.t22); i++)
+            for (int i = Math.Min(segment.t21,segment.t22); i < Math.Max(segment.t21,segment.t22); i++)
             {
                 edge2.Add(DNAseq2[i]);
-            }
-            if (edge1.Count == 0 || edge2.Count == 0)
-            {
-                goto r; // if there is no matching edge, it is not nessesary for culling
             }
 
             // Step 2: Analyze the edge feature
@@ -515,34 +477,30 @@ namespace TornRepair2
             List<Point> pedge1;
             List<Point> pedge2;
 
-
-            c1 = new Contour<Point>(Form1.mem);
-            foreach (Phi p in edge1)
-            {
-                c1.Push(new Point((int)p.x, (int)p.y));
-            }
-            if (c1.Total == 0)
-            {
-
-            }
-            // stor.Dispose();
-            c1 = c1.ApproxPoly(2.0, Form1.mem);
-            pedge1 = c1.ToList();
+           
+                c1 = new Contour<Point>(Form1.mem);
+                foreach(Phi p in edge1)
+                {
+                    c1.Push(new Point((int)p.x, (int)p.y));
+                }
+               // stor.Dispose();
+                c1 = c1.ApproxPoly(2.0,Form1.mem);
+                pedge1 = c1.ToList();
 
 
+            
+            
+           
+           
+                c2 = new Contour<Point>(Form1.mem);
+                foreach (Phi p in edge2)
+                {
+                    c2.Push(new Point((int)p.x, (int)p.y));
+                }
+               
 
 
-
-
-            c2 = new Contour<Point>(Form1.mem);
-            foreach (Phi p in edge2)
-            {
-                c2.Push(new Point((int)p.x, (int)p.y));
-            }
-
-
-
-
+            
             c2 = c2.ApproxPoly(2.0);
             pedge2 = c2.ToList();
 
@@ -560,14 +518,14 @@ namespace TornRepair2
 
             // use a brute force longest straight line approach first, this solves a lot of cases
             int maxDistance = -99999;
-            int pos1 = 0, pos2 = 0;
-            for (int i = 0; i < pedge1.Count - 1; i++)
+            int pos1=0, pos2=0;
+            for(int i=0; i < pedge1.Count-1; i++)
             {
-                if (pedge1[i + 1].X == pedge1[i].X)
+                if (pedge1[i+1].X == pedge1[i].X)
                 {
                     if (Math.Abs(pedge1[i + 1].Y - pedge1[i].Y) > maxDistance)
                     {
-                        maxDistance = Math.Abs(pedge1[i + 1].Y - pedge1[i].Y);
+                        maxDistance = Math.Abs(pedge1[i+1].Y - pedge1[i].Y);
                         pos1 = i;
                     }
                 }
@@ -575,19 +533,19 @@ namespace TornRepair2
                 {
                     if (Math.Abs(pedge1[i + 1].X - pedge1[i].X) > maxDistance)
                     {
-                        maxDistance = Math.Abs(pedge1[i + 1].X - pedge1[i].X);
+                        maxDistance = Math.Abs(pedge1[i+1].X - pedge1[i].X);
                         pos1 = i;
                     }
                 }
             }
             maxDistance = -99999;
-            for (int i = 0; i < pedge2.Count - 1; i++)
+            for (int i = 0; i < pedge2.Count-1; i++)
             {
                 if (pedge2[i + 1].X == pedge2[i].X)
                 {
                     if (Math.Abs(pedge2[i + 1].Y - pedge2[i].Y) > maxDistance)
                     {
-                        maxDistance = Math.Abs(pedge2[i + 1].Y - pedge2[i].Y);
+                        maxDistance = Math.Abs(pedge2[i+1].Y - pedge2[i].Y);
                         pos2 = i;
                     }
                 }
@@ -595,7 +553,7 @@ namespace TornRepair2
                 {
                     if (Math.Abs(pedge2[i + 1].X - pedge2[i].X) > maxDistance)
                     {
-                        maxDistance = Math.Abs(pedge2[i + 1].X - pedge2[i].X);
+                        maxDistance = Math.Abs(pedge2[i+1].X - pedge2[i].X);
                         pos2 = i;
                     }
                 }
@@ -622,7 +580,7 @@ namespace TornRepair2
             }
             for (int j = 0; j < DNAseq1.Count; j++)
             {
-                if ((pedge1[pos1 + 1].X == DNAseq1[j].x) && (pedge1[pos1 + 1].Y == DNAseq1[j].y))
+                if ((pedge1[pos1+1].X == DNAseq1[j].x) && (pedge1[pos1+1].Y == DNAseq1[j].y))
                 {
                     segment.t12 = j;
 
@@ -630,7 +588,7 @@ namespace TornRepair2
             }
             for (int j = 0; j < DNAseq2.Count; j++)
             {
-                if ((pedge2[pos2 + 1].X == DNAseq2[j].x) && (pedge2[pos2 + 1].Y == DNAseq2[j].y))
+                if ((pedge2[pos2+1].X == DNAseq2[j].x) && (pedge2[pos2+1].Y == DNAseq2[j].y))
                 {
                     segment.t22 = j;
 
@@ -650,7 +608,7 @@ namespace TornRepair2
 
 
 
-            r:  return segment;
+            return segment;
 
         }
 
@@ -672,7 +630,7 @@ namespace TornRepair2
                 bool flag = false;
                 for (int j = 0; j < diff.Count; ++j)
                 {
-                    // Since the DNA signature increases monotonically, at the point where the pattern matches, the difference is nearly a constant. 
+                   // Since the DNA signature increases monotonically, at the point where the pattern matches, the difference is nearly a constant. 
                     if (diff[j] >= i && diff[j] < i + delta_theta) // if the difference lies in the 
                     {
                         if (!flag)
@@ -733,7 +691,7 @@ namespace TornRepair2
         // i=2 p3-p2=1 -> p4-p2= 4, initial=x[4]=8
         // count =2
         // From Line 264-278
-
+        
         private static int changes(List<int> X)
         {
             if (X.Count == 0)
