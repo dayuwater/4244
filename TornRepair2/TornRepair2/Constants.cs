@@ -17,6 +17,7 @@ namespace TornRepair2
         public const int MIN_COLOR_SHIFT = 2; // as the API said
         public const int COLOR_TOLERANCE = 3;
         public const int AREA_SHIFT = 3;
+        public const int EDGE_COLOR_DIFFERENCE = 40;
         
     }
 }
