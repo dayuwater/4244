@@ -285,7 +285,7 @@ namespace TornRepair2
             // It will consider the rest of the pieces from another page
 
             // 1st funnel: select the most potential matching edges
-            matchMetricData = matchMetricData.Where(o => o.confident > 60).OrderBy(o => o.confident).Reverse().ToList();
+            matchMetricData = matchMetricData.Where(o => o.confident > Constants.MIN_CONFIDENCE).OrderBy(o => o.confident).Reverse().ToList();
             Console.WriteLine(maxConfidence);
             Console.WriteLine(map1.imageIndex);
             Console.WriteLine(map2.imageIndex);
