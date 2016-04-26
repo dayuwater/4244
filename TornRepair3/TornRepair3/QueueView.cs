@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -76,6 +77,186 @@ namespace TornRepair3
         private void QueueView_Activated(object sender, EventArgs e)
         {
             refresh();
+        }
+
+        private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            listBox1.Items.Clear();
+            num = e.RowIndex;
+
+            int index = 1;
+            foreach (ColorfulContourMap cmap in Form1.blackContourMaps)
+            {
+                if (cmap.imageIndex == num)
+                {
+
+                    listBox1.Items.Add("Contour " + index + cmap.matched.ToString());
+                    index++;
+                }
+            }
+            foreach (ColorfulContourMap cmap in Form1.whiteContourMaps)
+            {
+                if (cmap.imageIndex+Form1.blackSourceImages.Count == num)
+                {
+
+                    listBox1.Items.Add("Contour " + index + cmap.matched.ToString());
+                    index++;
+                }
+            }
+
+            listBox1.SelectedIndex = 0;
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int firstAppear = 0;
+            bool blackOrWhite = false; // false=black
+            foreach (ColorfulContourMap cmap in Form1.blackContourMaps)
+            {
+                if (cmap.imageIndex == num)
+                {
+                    blackOrWhite = false;
+                    goto black;
+                }
+                firstAppear++;
+                
+            }
+            firstAppear=0;
+            foreach (ColorfulContourMap cmap in Form1.whiteContourMaps)
+            {
+                if (cmap.imageIndex == num-Form1.blackSourceImages.Count)
+                {
+                    blackOrWhite = true;
+                    break;
+                }
+                firstAppear++;
+                
+            }
+            black:  if (!blackOrWhite) // black
+            {
+                Mat img1 = Form1.blackSourceImages[num].Clone();
+                Mat img2 = Form1.blackSourceImages[num].Clone();
+                img2.SetTo(new MCvScalar(255,255,255));
+                Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
+                Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
+                {
+                   
+                    MatImage m1 = new MatImage(img1);
+                   
+                    m1.ResizeTo(pictureBox1.Width,pictureBox1.Height);
+                   
+                    img1 = m1.Out();
+                }
+                pictureBox1.Image = img1.Bitmap;
+                {
+
+                    MatImage m2 = new MatImage(img2);
+
+                    m2.ResizeTo(pictureBox2.Width, pictureBox2.Height);
+
+                    img2 = m2.Out();
+                }
+                pictureBox2.Image = img2.Bitmap;
+            }
+            else // white
+            {
+                Mat img1 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
+                Mat img2 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
+                img2.SetTo(new MCvScalar(0));
+                Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
+                Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
+                {
+
+                    MatImage m1 = new MatImage(img1);
+
+                    m1.ResizeTo(pictureBox1.Width, pictureBox1.Height);
+
+                    img1 = m1.Out();
+                }
+                pictureBox1.Image = img1.Bitmap;
+                {
+
+                    MatImage m2 = new MatImage(img2);
+
+                    m2.ResizeTo(pictureBox2.Width, pictureBox2.Height);
+
+                    img2 = m2.Out();
+                }
+                pictureBox2.Image = img2.Bitmap;
+            }
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void displayFragments(PictureBox pb)
+        {
+            // determine the index of the first contour map for a image
+            int firstAppear = 0;
+            bool blackOrWhite = false;
+            foreach (ColorfulContourMap cmap in Form1.blackContourMaps)
+            {
+                if (cmap.imageIndex == num)
+                {
+                    blackOrWhite = false;
+                    goto black;
+                }
+                firstAppear++;
+            }
+            firstAppear = 0;
+            foreach (ColorfulContourMap cmap in Form1.whiteContourMaps)
+            {
+                if (cmap.imageIndex == num - Form1.blackSourceImages.Count)
+                {
+                    blackOrWhite = true;
+                    break;
+                }
+                firstAppear++;
+            }
+            black:
+            if (!blackOrWhite)
+            {
+                ind1 = firstAppear + listBox1.SelectedIndex;
+                Mat img1 = Form1.blackSourceImages[num].Clone();
+
+                Form1.blackContourMaps[ind1].DrawTo(img1);
+                {
+
+                    MatImage m2 = new MatImage(img1);
+
+                    m2.ResizeTo(pb.Width, pb.Height);
+
+                    img1 = m2.Out();
+                }
+                pb.Image = img1.Bitmap;
+            }
+            else
+            {
+                ind1 = firstAppear + listBox1.SelectedIndex;
+                Mat img1 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
+
+                Form1.whiteContourMaps[ind1].DrawTo(img1);
+                {
+
+                    MatImage m2 = new MatImage(img1);
+
+                    m2.ResizeTo(pb.Width, pb.Height);
+
+                    img1 = m2.Out();
+                }
+                pb.Image = img1.Bitmap;
+            }
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            displayFragments(pictureBox3);
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            displayFragments(pictureBox4);
         }
     }
 }

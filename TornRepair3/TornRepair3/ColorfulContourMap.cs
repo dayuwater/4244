@@ -91,16 +91,17 @@ namespace TornRepair3
                         pcps.Add(cp);
                     }
                     result.Add(new ColorfulContourMap(cps, pcps, index));
+                    // clear temporal lists
+                    pointList = new List<Point>();
+                    polyPointList = new List<Point>();
+                    cps = new List<ColorfulPoint>();
+                    pcps = new List<ColorfulPoint>();
 
                 }
 
                
             }
-            // clear temporal lists
-            pointList = new List<Point>();
-            polyPointList = new List<Point>();
-            cps = new List<ColorfulPoint>();
-            pcps = new List<ColorfulPoint>();
+           
 
 
 
@@ -197,6 +198,18 @@ namespace TornRepair3
 
             return nearbyColors.ElementAt(maxIndex);
 
+        }
+        public void DrawTo(Mat output)
+        {
+            foreach (ColorfulPoint p in _points)
+            {
+                CvInvoke.Circle(output, new Point(p.X, p.Y), 1,new Bgr(255,0,0).MCvScalar);
+            }
+            foreach (ColorfulPoint p in _polyPoints)
+            {
+                CvInvoke.Circle(output, new Point(p.X, p.Y), 1, new Bgr(0, 0, 255).MCvScalar);
+
+            }
         }
 
         public void DrawColorTo(Mat output)
