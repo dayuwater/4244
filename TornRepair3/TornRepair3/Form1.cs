@@ -23,6 +23,8 @@ namespace TornRepair3
         public static List<Mat> whiteSourceImages = new List<Mat>();
         public static List<ColorfulContourMap> blackContourMaps = new List<ColorfulContourMap>(); // the contour maps
         public static List<ColorfulContourMap> whiteContourMaps = new List<ColorfulContourMap>(); // the contour maps
+        public static List<Mat> blackCroppedImages = new List<Mat>(); // the cropped source image based on the contour map
+        public static List<Mat> whiteCroppedImages = new List<Mat>(); // the cropped source image based on the contour map
 
         public Form1()
         {
@@ -138,6 +140,11 @@ namespace TornRepair3
                 }
                 Console.WriteLine(DateTime.Now.ToFileTime() * 10 / 1000000 - start);
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

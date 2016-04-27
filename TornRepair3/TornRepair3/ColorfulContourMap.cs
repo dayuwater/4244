@@ -142,7 +142,7 @@ namespace TornRepair3
                 }
                 if (pp.Y < minY)
                 {
-                    minY = pp.X;
+                    minY = pp.Y;
                 }
             }
             Height = maxY - minY;
@@ -153,6 +153,7 @@ namespace TornRepair3
 
 
         }
+        
 
         // forced static
         private static Bgr extractPointColor(Point p, Mat input)

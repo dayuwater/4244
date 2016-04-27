@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -154,24 +155,39 @@ namespace TornRepair3
                 for (int i= 0; i < Form1.blackSourceImages.Count; i++)
                 {
                     List<ColorfulContourMap> cmap;
-
+                    bool inProcess = false;
                     try {
                         cmap = ColorfulContourMap.getAllContourMap(Form1.blackSourceImages[i], blackIndex, 1);
+                       
+                       
+                        for (int j= 0; j < cmap.Count; j++) {
+                            inProcess = true;
+                            cmap[j]=AddCroppedImages(false, cmap[j]);
+                        }
                         Form1.blackContourMaps.AddRange(cmap);
                         blackIndex++;
                     }
                     catch
                     {
-                        
-                        MessageBox.Show("One of your input images seems to have a white background. That image will be moved into white category");
-                        cmap = ColorfulContourMap.getAllContourMap(Form1.blackSourceImages[i], whiteIndex, 0);
-                        Form1.whiteContourMaps.AddRange(cmap);
-                        //missBlackIndex.Add(blackIndex);
-                        Form1.whiteSourceImages.Insert(whiteIndex, Form1.blackSourceImages[i]);
-                        whiteIndex++;
-                       
-                        Form1.blackSourceImages.Remove(Form1.blackSourceImages[i]);
-                        i--;
+                        if (!inProcess)
+                        {
+                            MessageBox.Show("One of your input images seems to have a white background. That image will be moved into white category");
+                            cmap = ColorfulContourMap.getAllContourMap(Form1.blackSourceImages[i], whiteIndex, 0);
+                           
+                            //missBlackIndex.Add(blackIndex);
+                            Form1.whiteSourceImages.Insert(whiteIndex, Form1.blackSourceImages[i]);
+
+                            for (int j= 0; j < cmap.Count; j++)
+                            {
+
+                                cmap[j]=AddCroppedImages(true, cmap[j]);
+                            }
+                            Form1.whiteContourMaps.AddRange(cmap);
+                            whiteIndex++;
+
+                            Form1.blackSourceImages.Remove(Form1.blackSourceImages[i]);
+                            i--;
+                        }
                     }
                     
                    
@@ -182,23 +198,40 @@ namespace TornRepair3
                 for(int i=whiteIndex;i<Form1.whiteSourceImages.Count;i++)
                 {
                     List<ColorfulContourMap> cmap;
-
+                    bool inProcess = false;
                     try {
                         cmap = ColorfulContourMap.getAllContourMap(Form1.whiteSourceImages[i], whiteIndex, 0);
+                       
+                        
+                        for(int j=0; j<cmap.Count;j++)
+                        {
+                            inProcess = true;
+                            cmap[j]=AddCroppedImages(true, cmap[j]);
+                        }
                         Form1.whiteContourMaps.AddRange(cmap);
                         whiteIndex++;
                     }
                     catch
                     {
-                        MessageBox.Show("One of your input images seems to have a black background. That image will be moved into black category");
-                        cmap = ColorfulContourMap.getAllContourMap(Form1.whiteSourceImages[i], blackIndex, 1);
-                        Form1.blackContourMaps.AddRange(cmap);
-                        missWhiteIndex.Add(whiteIndex);
-                        blackIndex++;
-                       
-                        Form1.blackSourceImages.Add(Form1.whiteSourceImages[i]);
-                        Form1.whiteSourceImages.Remove(Form1.whiteSourceImages[i]);
-                        i--;
+                        if (!inProcess)
+                        {
+                            MessageBox.Show("One of your input images seems to have a black background. That image will be moved into black category");
+                            cmap = ColorfulContourMap.getAllContourMap(Form1.whiteSourceImages[i], blackIndex, 1);
+                           
+                            //missWhiteIndex.Add(whiteIndex);
+
+                            for (int j= 0; j < cmap.Count; j++)
+                            {
+
+                                cmap[j]=AddCroppedImages(false, cmap[j]);
+                            }
+                            Form1.blackContourMaps.AddRange(cmap);
+                            blackIndex++;
+
+                            Form1.blackSourceImages.Add(Form1.whiteSourceImages[i]);
+                            Form1.whiteSourceImages.Remove(Form1.whiteSourceImages[i]);
+                            i--;
+                        }
 
                     }
 
@@ -222,6 +255,60 @@ namespace TornRepair3
             }
 
             // move to next form
+        }
+
+        private ColorfulContourMap AddCroppedImages(bool blackOrWhite, ColorfulContourMap cmap)
+        {
+            
+            // get the image
+            Mat img;
+            if (blackOrWhite)
+            {
+                img = Form1.whiteSourceImages[cmap.imageIndex].Clone();
+            }
+            else
+            {
+                img = Form1.blackSourceImages[cmap.imageIndex].Clone();
+            }
+            // get the min max x y
+            int minX = cmap.Center.X - cmap.Width/2;
+            int minY = cmap.Center.Y - cmap.Height / 2;
+            int maxX = cmap.Center.X + cmap.Width / 2;
+            int maxY = cmap.Center.Y + cmap.Height / 2;
+
+
+
+
+
+            // crop the corresponding image
+            Mat result = new Mat(img, new Rectangle(new Point(minX, minY), new Size(maxX - minX, maxY - minY)));
+
+            /*Mat result = new Mat(new Size(maxX-minX,maxY-minY),DepthType.Cv8U,3);
+            CvInvoke.cvResetImageROI(img);
+            CvInvoke.cvSetImageROI(img, new Rectangle(new Point(minX, minY), new Size(maxX - minX, maxY - minY)));
+            CvInvoke.cvCopy(img, result,IntPtr.Zero);*/
+            if (blackOrWhite)
+            {
+                CvInvoke.CopyMakeBorder(result, result, 100, 100, 100, 100, BorderType.Constant, new MCvScalar(255, 255, 255));
+            }
+            else
+            {
+                CvInvoke.CopyMakeBorder(result, result, 100, 100, 100, 100, BorderType.Constant, new MCvScalar(0, 0, 0));
+            }
+
+            // output the image
+            //result = img;
+            if (blackOrWhite)
+            {
+                Form1.whiteCroppedImages.Add(result);
+                cmap = ColorfulContourMap.getAllContourMap(result,cmap.imageIndex,0)[0]; // update the contour map for the new image
+            }
+            else
+            {
+                Form1.blackCroppedImages.Add(result);
+                cmap = ColorfulContourMap.getAllContourMap(result, cmap.imageIndex, 1)[0]; // update the contour map for the new image
+            }
+            return cmap;
         }
     }
 }

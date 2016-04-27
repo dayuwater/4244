@@ -8,7 +8,7 @@ namespace TornRepair3
 {
     public static class Constants
     {
-        public const double MIN_AREA = 200;
+        public const double MIN_AREA = 5000;
         public const int STEP = 10;
         public const int DELTA_THETA = 10;
         public const int MULT = 3;

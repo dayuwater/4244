@@ -137,8 +137,8 @@ namespace TornRepair3
                 Mat img1 = Form1.blackSourceImages[num].Clone();
                 Mat img2 = Form1.blackSourceImages[num].Clone();
                 img2.SetTo(new MCvScalar(255,255,255));
-                Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
-                Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
+                //Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
+                //Form1.blackContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
                 {
                    
                     MatImage m1 = new MatImage(img1);
@@ -163,8 +163,8 @@ namespace TornRepair3
                 Mat img1 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
                 Mat img2 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
                 img2.SetTo(new MCvScalar(0));
-                Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
-                Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
+                //Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawTo(img1);
+                //Form1.whiteContourMaps[firstAppear + listBox1.SelectedIndex].DrawColorTo(img2);
                 {
 
                     MatImage m1 = new MatImage(img1);
@@ -218,7 +218,7 @@ namespace TornRepair3
             if (!blackOrWhite)
             {
                 ind1 = firstAppear + listBox1.SelectedIndex;
-                Mat img1 = Form1.blackSourceImages[num].Clone();
+                Mat img1 = Form1.blackCroppedImages[ind1].Clone();
 
                 Form1.blackContourMaps[ind1].DrawTo(img1);
                 {
@@ -230,11 +230,12 @@ namespace TornRepair3
                     img1 = m2.Out();
                 }
                 pb.Image = img1.Bitmap;
+               
             }
             else
             {
                 ind1 = firstAppear + listBox1.SelectedIndex;
-                Mat img1 = Form1.whiteSourceImages[num - Form1.blackSourceImages.Count].Clone();
+                Mat img1 = Form1.whiteCroppedImages[ind1].Clone();
 
                 Form1.whiteContourMaps[ind1].DrawTo(img1);
                 {
@@ -246,7 +247,9 @@ namespace TornRepair3
                     img1 = m2.Out();
                 }
                 pb.Image = img1.Bitmap;
+               
             }
+           
         }
         private void button3_Click(object sender, EventArgs e)
         {
