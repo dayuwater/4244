@@ -20,6 +20,7 @@ namespace TornRepair3
         private ColorfulContourMap ctmap; // the current contour map
         public double confidence = 0;
         public double overlap = 0;
+        private bool blackOWhite = false;
         public QueueView()
         {
             InitializeComponent();
@@ -217,10 +218,21 @@ namespace TornRepair3
             black:
             if (!blackOrWhite)
             {
-                ind1 = firstAppear + listBox1.SelectedIndex;
-                Mat img1 = Form1.blackCroppedImages[ind1].Clone();
+                Mat img1 = new Mat();
+                if (pb == pictureBox3)
+                {
+                    ind1 = firstAppear + listBox1.SelectedIndex;
+                    img1 = Form1.blackCroppedImages[ind1].Clone();
 
-                Form1.blackContourMaps[ind1].DrawTo(img1);
+                    Form1.blackContourMaps[ind1].DrawTo(img1);
+                }
+                else
+                {
+                    ind2 = firstAppear + listBox1.SelectedIndex;
+                    img1 = Form1.blackCroppedImages[ind2].Clone();
+
+                    Form1.blackContourMaps[ind2].DrawTo(img1);
+                }
                 {
 
                     MatImage m2 = new MatImage(img1);
@@ -230,14 +242,26 @@ namespace TornRepair3
                     img1 = m2.Out();
                 }
                 pb.Image = img1.Bitmap;
+                blackOWhite = false;
                
             }
             else
             {
-                ind1 = firstAppear + listBox1.SelectedIndex;
-                Mat img1 = Form1.whiteCroppedImages[ind1].Clone();
+                Mat img1 = new Mat();
+                if (pb == pictureBox3)
+                {
+                    ind1 = firstAppear + listBox1.SelectedIndex;
+                    img1 = Form1.whiteCroppedImages[ind1].Clone();
 
-                Form1.whiteContourMaps[ind1].DrawTo(img1);
+                    Form1.whiteContourMaps[ind1].DrawTo(img1);
+                }
+                else
+                {
+                    ind2 = firstAppear + listBox1.SelectedIndex;
+                    img1 = Form1.whiteCroppedImages[ind2].Clone();
+
+                    Form1.whiteContourMaps[ind2].DrawTo(img1);
+                }
                 {
 
                     MatImage m2 = new MatImage(img1);
@@ -247,6 +271,7 @@ namespace TornRepair3
                     img1 = m2.Out();
                 }
                 pb.Image = img1.Bitmap;
+                blackOWhite = true;
                
             }
            
@@ -260,6 +285,37 @@ namespace TornRepair3
         private void button4_Click(object sender, EventArgs e)
         {
             displayFragments(pictureBox4);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+           
+            if (Form1.blackCroppedImages.Count+Form1.whiteCroppedImages.Count != 1)
+            {
+                if (ind1 < 0 || ind2 < 0)
+                {
+                    //TwoPieceMatchAnalysis tpma = new TwoPieceMatchAnalysis { map1 = Form1.blackContourMaps[0], map2 = Form1.contourMaps[1] };
+                    //tpma.Show();
+                    MessageBox.Show("Please provide two input images for matching");
+                }
+                else
+                {
+                    if (!blackOWhite)
+                    {
+                        TwoPieceMatchAnalysis tpma = new TwoPieceMatchAnalysis { map1 = Form1.blackContourMaps[ind1], map2 = Form1.blackContourMaps[ind2],
+                        pic1=Form1.blackCroppedImages[ind1],pic2=Form1.blackCroppedImages[ind2]};
+                        tpma.Show();
+                    }
+                    else
+                    {
+                        TwoPieceMatchAnalysis tpma = new TwoPieceMatchAnalysis { map1 = Form1.whiteContourMaps[ind1], map2 = Form1.whiteContourMaps[ind2],
+                            pic1 = Form1.whiteCroppedImages[ind1].Clone(),
+                            pic2 = Form1.whiteCroppedImages[ind2].Clone()
+                        };
+                        tpma.Show();
+                    }
+                }
+            }
         }
     }
 }

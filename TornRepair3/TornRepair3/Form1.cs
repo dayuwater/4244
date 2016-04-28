@@ -25,6 +25,7 @@ namespace TornRepair3
         public static List<ColorfulContourMap> whiteContourMaps = new List<ColorfulContourMap>(); // the contour maps
         public static List<Mat> blackCroppedImages = new List<Mat>(); // the cropped source image based on the contour map
         public static List<Mat> whiteCroppedImages = new List<Mat>(); // the cropped source image based on the contour map
+        
 
         public Form1()
         {
