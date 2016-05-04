@@ -304,6 +304,7 @@ namespace TornRepair3
                     {
                         TwoPieceMatchAnalysis tpma = new TwoPieceMatchAnalysis { map1 = Form1.blackContourMaps[ind1], map2 = Form1.blackContourMaps[ind2],
                         pic1=Form1.blackCroppedImages[ind1],pic2=Form1.blackCroppedImages[ind2]};
+                        tpma.blackOrWhite = blackOWhite;
                         tpma.Show();
                     }
                     else
@@ -312,6 +313,7 @@ namespace TornRepair3
                             pic1 = Form1.whiteCroppedImages[ind1].Clone(),
                             pic2 = Form1.whiteCroppedImages[ind2].Clone()
                         };
+                        tpma.blackOrWhite = blackOWhite;
                         tpma.Show();
                     }
                 }

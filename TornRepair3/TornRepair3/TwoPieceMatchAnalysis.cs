@@ -28,7 +28,7 @@ namespace TornRepair3
         private Point centroid1;
         private Point centroid2;
         private double angle;
-        private bool blackOrWhite = false;
+        public bool blackOrWhite = false;
 
         private List<Phi> DNA1;
         private List<Phi> DNA2;
@@ -94,8 +94,8 @@ namespace TornRepair3
             {
                 pic1Copy = pic1.Clone();
                 pic2Copy = pic2.Clone();
-                map1.DrawTo(pic1);
-                map2.DrawTo(pic2);
+                map1.DrawTo(pic1Copy);
+                map2.DrawTo(pic2Copy);
 
                 edgeMatch = DNAUtil.partialMatch(DNA1, DNA2);
                 List<Point> pointToDraw1 = new List<Point>();
@@ -124,8 +124,8 @@ namespace TornRepair3
             {
                 pic1Copy = pic1.Clone();
                 pic2Copy = pic2.Clone();
-                map1.DrawTo(pic1);
-                map2.DrawTo(pic2);
+                map1.DrawTo(pic1Copy);
+                map2.DrawTo(pic2Copy);
 
                 edgeMatch = DNAUtil.partialColorMatch(DNA1, DNA2);
                 List<Point> pointToDraw1 = new List<Point>();
@@ -181,6 +181,89 @@ namespace TornRepair3
                 m2.ResizeTo(pictureBox2.Width, pictureBox2.Height);
                 pictureBox2.Image = m2.Out().Bitmap;
             }
+        }
+        private Point pointTransform(Point p, ColorfulContourMap map)
+        {
+            Point result = new Point();
+            double requiredWidth = pic1.Width;
+            double requiredHeight =pic2.Height;
+            result.X = (int)((p.X + 0.0) / pictureBox1.Width * requiredWidth);
+            result.Y = (int)((p.Y + 0.0) / pictureBox1.Height * requiredHeight);
+            return result;
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            pic1Copy = pic1.Clone();
+            pic2Copy = pic2.Clone();
+            Transformation.transformation(DNA1, DNA2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+            angle = angle * 180 / Math.PI;
+            angle = -angle;
+            Console.WriteLine(centroid1.ToString());
+            Console.WriteLine(centroid2.ToString());
+            Console.WriteLine(angle);
+            mask1 = pic1Copy.Clone();
+            mask2 = pic2Copy.Clone();
+            ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, p1Tweak, p2Tweak,blackOrWhite);
+            joined = result.img;
+            //pictureBox3.Image = result.img./*Resize(pictureBox1.Width, pictureBox1.Height, INTER.CV_INTER_LINEAR).*/ToBitmap();
+            confidence = edgeMatch.confidence;
+            overlap = result.overlap;
+            ConfidenceView.Text = confidence.ToString();
+            OverlapView.Text = overlap.ToString();
+            //AddMatchHistory();
+            if (result.success)
+            {
+                DisplayImage dip = new DisplayImage(result.img, p1Tweak, p2Tweak, (int)overlap);
+                dip.Show();
+            }
+            else
+            {
+                MessageBox.Show("You cannot tweak further in that direction");
+            }
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            double minOverlap = 999999;
+            Point tweak = new Point(0, 0);
+            for (int i = -2; i < 3; i++) // tweak x
+            {
+                for (int j = -2; j < 3; j++) // tweak y
+                {
+                    // prepare images
+                    pic1Copy = pic1.Clone();
+                    pic2Copy = pic2.Clone();
+                    Transformation.transformation(DNA1, DNA2, ref edgeMatch, ref centroid1, ref centroid2, ref angle);
+                    angle = angle * 180 / Math.PI;
+                    angle = -angle;
+
+                    mask1 = pic1.Clone();
+                    mask2 = pic2.Clone();
+                    ReturnColorImg result = Transformation.transformColor(pic1, mask1, pic2, mask2, joined, joined_mask, centroid1, centroid2, -angle + 180, new Point(0, 0), new Point(i, j));
+                    if (result.success) // if tweakable
+                    {
+                        if (result.overlap < minOverlap)
+                        {
+                            minOverlap = result.overlap;
+                            tweak.X = i;
+                            tweak.Y = j;
+                        }
+                    }
+                    // progress the bar
+                    if (progressBar1.Value > 95)
+                    {
+                        progressBar1.Value = 100;
+                    }
+                    else
+                    {
+                        progressBar1.Value += 4;
+                    }
+                }
+            }
+            p2Tweak = tweak;
+            label8.Text = p2Tweak.ToString();
         }
     }
 

@@ -56,35 +56,19 @@ namespace TornRepair3
 
     }
 
-    [Obsolete]
-    public struct ReturnImg
-    {
-        public Image<Gray, byte> img;
-        public Image<Gray, byte> img_mask;
-        public Image<Gray, Byte> source1;
-        public Image<Gray, Byte> source2;
-        public Point center1;
-        public Point center2old;
-        public Point center2new;
-        public LineSegment2D centerLinee;
-        public Image<Gray, byte> rimg;
-        public bool returnbool;
-        public Point translate1; // t1
-        public Point translate2; // t2
-        public double overlap;
-    }
+   
     // The data structure for the result of a 2-piece match
     public struct ReturnColorImg
     {
-        public Image<Bgr, byte> img;
-        public Image<Bgr, byte> img_mask;
-        public Image<Bgr, Byte> source1;
-        public Image<Bgr, Byte> source2;
+        public Mat img;
+        public Mat img_mask;
+        public Mat source1;
+        public Mat source2;
         public Point center1;
         public Point center2old;
         public Point center2new;
         public LineSegment2D centerLinee;
-        public Image<Bgr, byte> rimg;
+        public Mat rimg;
         public bool returnbool;
         public Point translate1; // t1
         public Point translate2; // t2
