@@ -26,15 +26,20 @@ namespace TornRepair3
         public static void SetValue(this Mat mat, int row, int col, dynamic value)
         {
             var target = CreateElement(mat.Depth, value);
+
             Marshal.Copy(target, 0, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize + 0, 1);
+
+
             Marshal.Copy(target, 1, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize + 1, 1);
-            Marshal.Copy(target, 2, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize+2, 1);
+            Marshal.Copy(target, 2, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize + 2, 1);
+
+
         }
-        private static dynamic CreateElement(DepthType depthType, int[] value)
+        private static dynamic CreateElement(DepthType depthType, dynamic value)
         {
             var element = CreateElement(depthType);
-            element= value;
-            
+            element = value;
+
             return element;
         }
 

@@ -217,40 +217,16 @@ namespace TornRepair3
             //optimal_w = 1000;
             dst = new Mat(optimal_h, optimal_w,DepthType.Cv8U,3);
             dst_mask = new Mat(optimal_h, optimal_w,DepthType.Cv8U,3);
-            int[][][] Adst = new int[optimal_h][][];
-            int[][][]Adst_mask = new int[optimal_h][][];
-
+           
             if (mode)
             {
                 dst.SetTo(new MCvScalar(255, 255, 255)); // white background=255, black background=0
-                for (int i = 0; i < Adst.Length; i++)
-                {
-                    Adst[i] = new int[optimal_w][];
-                    for (int j = 0; j < optimal_w; j++)
-                    {
-                        Adst[i][j] = new int[3];
-                        Adst[i][j][0] = 255;
-                        Adst[i][j][1] = 255;
-                        Adst[i][j][2] = 255;
-
-                    }
-                }
+               
             }
             else
             {
                 dst.SetTo(new MCvScalar(0, 0, 0)); // white background=255, black background=0
-                for (int i = 0; i < Adst.Length; i++)
-                {
-                    Adst[i] = new int[optimal_w][];
-                    for (int j = 0; j < optimal_w; j++)
-                    {
-                        Adst[i][j] = new int[3];
-                        Adst[i][j][0] = 0;
-                        Adst[i][j][1] = 0;
-                        Adst[i][j][2] = 0;
-
-                    }
-                }
+               
             }
 
             dst_mask.SetTo(new MCvScalar(0, 0, 0));
@@ -258,14 +234,7 @@ namespace TornRepair3
             
             
 
-            for (int i = 0; i < Adst_mask.Length; i++)
-            {
-                Adst_mask[i] = new int[optimal_w][];
-                for (int j = 0; j < optimal_w; j++)
-                {
-                    Adst_mask[i][j] = new int[3];
-                }
-            }
+           
 
 
             /*if (BKG_WHITE)
@@ -289,13 +258,11 @@ namespace TornRepair3
                             int j_new = j + t1.X;
                             try
                             {
+                                dst.SetValue(i_new, j_new, img1.GetData(i, j));
+                                int[] vals = { 255, 255, 255 };
+                                dst_mask.SetValue(i_new, j_new, vals);
 
-                                Adst[i_new][j_new][0] = img1.GetData(i, j)[0];
-                                Adst[i_new][j_new][1] = img1.GetData(i, j)[1];
-                                Adst[i_new][j_new][2] = img1.GetData(i, j)[2];
-                                Adst_mask[i_new][j_new][0] = 255;
-                                Adst_mask[i_new][j_new][1] = 255;
-                                Adst_mask[i_new][j_new][2] = 255;
+                              
 
                                 
                             }
@@ -318,13 +285,11 @@ namespace TornRepair3
                             int j_new = j + t1.X;
                             try
                             {
+                                dst.SetValue(i_new, j_new, img1.GetData(i, j));
+                                int[] vals = { 0, 0, 0 };
+                                dst_mask.SetValue(i_new, j_new, vals);
 
-                                Adst[i_new][j_new][0] = img1.GetData(i, j)[0];
-                                Adst[i_new][j_new][1] = img1.GetData(i, j)[1];
-                                Adst[i_new][j_new][2] = img1.GetData(i, j)[2];
-                                Adst_mask[i_new][j_new][0] = 0;
-                                Adst_mask[i_new][j_new][1] = 0;
-                                Adst_mask[i_new][j_new][2] = 0;
+                               
 
                                 
                             }
@@ -357,20 +322,17 @@ namespace TornRepair3
                             int j_new = j + t2.X;
                             try
                             {
-                                if (Adst_mask[i_new][j_new][0] != 0)
+                                if (dst_mask.GetData(i_new,j_new)[0] != 0)
                                 {
                                     intersections++;
                                 }
                                 else
                                 {
+                                    dst.SetValue(i_new, j_new, E.GetData(i, j));
+                                    int[] vals = { 255, 255, 255 };
+                                    dst_mask.SetValue(i_new, j_new, vals);
 
-                                    Adst[i_new][j_new][0] = E.GetData(i, j)[0];
-                                    Adst[i_new][j_new][1] = E.GetData(i, j)[1];
-                                    Adst[i_new][j_new][2] = E.GetData(i, j)[2];
-                                    Adst_mask[i_new][j_new][0] = 255;
-                                    Adst_mask[i_new][j_new][1] = 255;
-                                    Adst_mask[i_new][j_new][2] = 255;
-
+                                   
                                    
                                 }
                             }
@@ -393,19 +355,17 @@ namespace TornRepair3
                             int j_new = j + t2.X;
                             try
                             {
-                                if (Adst_mask[i_new][j_new][0] != 0)
+                                if (dst_mask.GetData(i_new, j_new)[0] != 0)
                                 {
                                     intersections++;
                                 }
                                 else
                                 {
+                                    dst.SetValue(i_new, j_new, E.GetData(i, j));
+                                    int[] vals = { 0, 0, 0 };
+                                    dst_mask.SetValue(i_new, j_new, vals);
 
-                                    Adst[i_new][j_new][0] = E.GetData(i, j)[0];
-                                    Adst[i_new][j_new][1] = E.GetData(i, j)[1];
-                                    Adst[i_new][j_new][2] = E.GetData(i, j)[2];
-                                    Adst_mask[i_new][j_new][0] = 0;
-                                    Adst_mask[i_new][j_new][1] = 0;
-                                    Adst_mask[i_new][j_new][2] = 0;
+                                  
 
                                 }
                             }
@@ -422,7 +382,7 @@ namespace TornRepair3
                 }
             }
 
-            for (int i = 0; i < Adst.Length; i++)
+            /*for (int i = 0; i < Adst.Length; i++)
             {
                 for(int j=0; j < Adst[0].Length; j++)
                 {
@@ -435,7 +395,7 @@ namespace TornRepair3
                 {
                     dst_mask.SetValue(i, j, Adst_mask[i][j]);
                 }
-            }
+            }*/
             // dst.SetTo(Adst);
             //dst_mask.SetTo(Adst_mask);
 
